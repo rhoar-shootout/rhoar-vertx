@@ -1,0 +1,63 @@
+swagger: '2.0'
+info:
+  description: API for Elizabethan Insult Generator Microservices
+  version: 1.0.0
+  title: Elizabethan Insults Service
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+basePath: /api/v1
+tags:
+  - name: insult
+    description: An Elizabethan derrogatory insult
+schemes:
+  - http
+  - https
+paths:
+  /insult:
+    get:
+      tags:
+        - insult
+      summary: Get an Insult
+      description: ''
+      operationId: getInsult
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK
+    post:
+      tags:
+        - insult
+      summary: Add an insult
+      description: ''
+      operationId: addInsult
+      consumes:
+        - text/plain
+      produces:
+        - text/plain
+      responses:
+        '202':
+          description: Accepted
+        '500':
+          description: Server error
+  '/insult/{insult}':
+    delete:
+      tags:
+        - insult
+      summary: Delete an insult
+      description: Delete the insult specified in the path
+      operationId: deleteInsult
+      parameters:
+        - name: insult
+          in: path
+          description: The insult to be deleted
+          required: true
+          type: string
+      responses:
+        '204':
+          description: Deleted
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found

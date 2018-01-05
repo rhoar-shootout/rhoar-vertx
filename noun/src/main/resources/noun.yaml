@@ -1,0 +1,63 @@
+swagger: '2.0'
+info:
+  description: Noun API for Elizabethan Insult Generator Microservices
+  version: 1.0.0
+  title: Elizabethan Noun Service
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+basePath: /api/v1
+tags:
+  - name: noun
+    description: An Elizabethan derrogatory noun
+schemes:
+  - http
+  - https
+paths:
+  /noun:
+    get:
+      tags:
+        - noun
+      summary: Get an Noun
+      description: ''
+      operationId: getNoun
+      produces:
+        - text/plain
+      responses:
+        '200':
+          description: OK
+    post:
+      tags:
+        - noun
+      summary: Add an noun
+      description: ''
+      operationId: addNoun
+      consumes:
+        - text/plain
+      produces:
+        - text/plain
+      responses:
+        '202':
+          description: Accepted
+        '500':
+          description: Server error
+  '/noun/{noun}':
+    delete:
+      tags:
+        - noun
+      summary: Delete an noun
+      description: Delete the noun specified in the path
+      operationId: deleteNoun
+      parameters:
+        - name: noun
+          in: path
+          description: The noun to be deleted
+          required: true
+          type: string
+      responses:
+        '204':
+          description: Deleted
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
