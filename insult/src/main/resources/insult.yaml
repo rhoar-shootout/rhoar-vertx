@@ -1,19 +1,34 @@
-swagger: '2.0'
+openapi: 3.0.0
 info:
-  description: API for Elizabethan Insult Generator Microservices
-  version: 1.0.0
-  title: Elizabethan Insults Service
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-basePath: /api/v1
+  version: "1.0.3"
+  title: 'Insult Service'
+  description: 'API for Elizabethan Insult Generator Microservices'
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/InfoSec812/Insult/1
 tags:
   - name: insult
     description: An Elizabethan derrogatory insult
-schemes:
-  - http
-  - https
 paths:
+  /health:
+    get:
+      summary: Get the health of the service
+      description: 'Returns an HTTP response code and a JSON document detailing the current health status of the service'
+      operationId: health
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/health'
+        '500':
+          description: 'Server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/health'
   /insult:
     get:
       tags:
@@ -21,43 +36,65 @@ paths:
       summary: Get an Insult
       description: ''
       operationId: getInsult
-      produces:
-        - text/plain
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/insult'
     post:
       tags:
         - insult
-      summary: Add an insult
+      summary: Insult a person by name
       description: ''
-      operationId: addInsult
-      consumes:
-        - text/plain
-      produces:
-        - text/plain
+      operationId: insultByName
+      requestBody:
+        description: Optional description in *Markdown*
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/insultrequest'
       responses:
         '202':
-          description: Accepted
-        '500':
-          description: Server error
-  '/insult/{insult}':
-    delete:
-      tags:
-        - insult
-      summary: Delete an insult
-      description: Delete the insult specified in the path
-      operationId: deleteInsult
-      parameters:
-        - name: insult
-          in: path
-          description: The insult to be deleted
-          required: true
+          description: Insult someone by name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/insult'
+components:
+  schemas:
+    health:
+      type: object
+      required:
+      - status
+      properties:
+        status:
           type: string
-      responses:
-        '204':
-          description: Deleted
-        '403':
-          description: Forbidden
-        '404':
-          description: Not found
+        details:
+          type: string
+        error:
+          type: string
+    insult:
+      type: object
+      required:
+      - noun
+      - adj1
+      - adj2
+      properties:
+        noun:
+          type: string
+        adj1:
+          type: string
+        adj2:
+          type: string
+        name:
+          type: string
+    insultrequest:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          type: string

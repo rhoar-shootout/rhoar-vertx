@@ -23,6 +23,28 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web-api-contract</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-config-kubernetes-configmap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-service-proxy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-codegen</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.labs</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

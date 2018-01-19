@@ -26,10 +26,46 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId></groupId>
+                <artifactId>liquibase</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>2.4.12</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.21.0-GA</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.spockframework</groupId>
+                <artifactId>spock-core</artifactId>
+                <version>1.1-groovy-2.4</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency> <!-- enables mocking of classes (in addition to interfaces) -->
+                <groupId>cglib</groupId>
+                <artifactId>cglib-nodep</artifactId>
+                <version>3.2.4</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency> <!-- enables mocking of classes without default constructor (together with CGLIB) -->
+                <groupId>org.objenesis</groupId>
+                <artifactId>objenesis</artifactId>
+                <version>2.5.1</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <modules>
+        <module>common</module>
         <module>adjective</module>
         <module>noun</module>
         <module>ui</module>
@@ -55,6 +91,55 @@
                     <configuration>
                         <redeploy>true</redeploy>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.gmavenplus</groupId>
+                    <artifactId>gmavenplus-plugin</artifactId>
+                    <version>1.5</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>addSources</goal>
+                                <goal>addTestSources</goal>
+                                <goal>generateStubs</goal>
+                                <goal>compile</goal>
+                                <goal>testGenerateStubs</goal>
+                                <goal>testCompile</goal>
+                                <goal>removeStubs</goal>
+                                <goal>removeTestStubs</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.6</version>
+                    <configuration>
+                        <useFile>false</useFile>
+                        <includes>
+                            <include>**/*Spec.groovy</include>
+                        </includes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.7.6.201602180812</version>
+                    <executions>
+                        <execution>
+                            <id>jacoco-initialize</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>jacoco-site</id>
+                            <phase>test</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
