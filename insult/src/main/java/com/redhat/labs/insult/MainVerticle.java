@@ -1,16 +1,12 @@
 package com.redhat.labs.insult;
 
-import com.redhat.labs.common.DbServiceImpl;
-
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Router;
@@ -18,20 +14,12 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory;
 
 import java.util.Arrays;
-import java.util.Map;
-import com.redhat.labs.common.DbService;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
-import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
-import io.vertx.serviceproxy.ServiceBinder;
 
-import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.vertx.core.http.HttpMethod.POST;
 
 public class MainVerticle extends AbstractVerticle {
-
-    private DbService service;
 
     /**
      * Handle results of {@link OpenAPI3RouterFactory} creation
@@ -54,12 +42,6 @@ public class MainVerticle extends AbstractVerticle {
      */
     @Override
     public void start(final Future<Void> startFuture) {
-        service = new DbServiceImpl(vertx);
-
-        // Bind the database service
-        new ServiceBinder(vertx)
-                .setAddress("db.service")
-                .register(DbService.class, service);
 
         Handler<AsyncResult<OpenAPI3RouterFactory>> handler = r -> routerFactoryHandler(startFuture, r);
         OpenAPI3RouterFactory
@@ -128,7 +110,6 @@ public class MainVerticle extends AbstractVerticle {
 
         Future<String> adjective = breaker.executeWithFallback(future -> {
             // Try the actual client request
-            client.getNow()
         }, v -> {
             // If the circuit breaker is open, return a default value
             return "[service timeout]";

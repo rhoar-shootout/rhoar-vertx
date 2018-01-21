@@ -27,9 +27,21 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId></groupId>
-                <artifactId>liquibase</artifactId>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-core</artifactId>
+                <version>3.5.3</version>
             </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.25</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>1.7.25</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-all</artifactId>
@@ -42,7 +54,6 @@
                 <version>3.21.0-GA</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.spockframework</groupId>
                 <artifactId>spock-core</artifactId>
@@ -65,7 +76,6 @@
     </dependencyManagement>
 
     <modules>
-        <module>common</module>
         <module>adjective</module>
         <module>noun</module>
         <module>ui</module>
@@ -91,6 +101,11 @@
                     <configuration>
                         <redeploy>true</redeploy>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.liquibase</groupId>
+                    <artifactId>liquibase-maven-plugin</artifactId>
+                    <version>3.5.3</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.gmavenplus</groupId>

@@ -1,0 +1,137 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="dphillips (generated)" id="1516548822633-1">
+        <createTable tableName="adjectives">
+            <column autoIncrement="true" name="id" type="SERIAL">
+                <constraints primaryKey="true" primaryKeyName="adjectives_pkey"/>
+            </column>
+            <column name="adjective" type="VARCHAR(240)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dphillips (generated)" id="1516548822633-2">
+        <sql splitStatements="true" endDelimiter="\n">
+            INSERT INTO adjectives (adjective) VALUES ('artless');
+            INSERT INTO adjectives (adjective) VALUES ('base-court');
+            INSERT INTO adjectives (adjective) VALUES ('bawdy');
+            INSERT INTO adjectives (adjective) VALUES ('bat-fowling');
+            INSERT INTO adjectives (adjective) VALUES ('beslubbering');
+            INSERT INTO adjectives (adjective) VALUES ('beef-witted');
+            INSERT INTO adjectives (adjective) VALUES ('bootless');
+            INSERT INTO adjectives (adjective) VALUES ('beetle-headed');
+            INSERT INTO adjectives (adjective) VALUES ('churlish');
+            INSERT INTO adjectives (adjective) VALUES ('boil-brained');
+            INSERT INTO adjectives (adjective) VALUES ('cockered');
+            INSERT INTO adjectives (adjective) VALUES ('clapper-clawed');
+            INSERT INTO adjectives (adjective) VALUES ('clouted');
+            INSERT INTO adjectives (adjective) VALUES ('clay-brained');
+            INSERT INTO adjectives (adjective) VALUES ('craven');
+            INSERT INTO adjectives (adjective) VALUES ('common-kissing');
+            INSERT INTO adjectives (adjective) VALUES ('currish');
+            INSERT INTO adjectives (adjective) VALUES ('crook-pated');
+            INSERT INTO adjectives (adjective) VALUES ('dankish');
+            INSERT INTO adjectives (adjective) VALUES ('dismal-dreaming');
+            INSERT INTO adjectives (adjective) VALUES ('dissembling');
+            INSERT INTO adjectives (adjective) VALUES ('dizzy-eyed');
+            INSERT INTO adjectives (adjective) VALUES ('droning');
+            INSERT INTO adjectives (adjective) VALUES ('doghearted');
+            INSERT INTO adjectives (adjective) VALUES ('errant');
+            INSERT INTO adjectives (adjective) VALUES ('dread-bolted');
+            INSERT INTO adjectives (adjective) VALUES ('fawning');
+            INSERT INTO adjectives (adjective) VALUES ('earth-vexing');
+            INSERT INTO adjectives (adjective) VALUES ('fobbing');
+            INSERT INTO adjectives (adjective) VALUES ('elf-skinned');
+            INSERT INTO adjectives (adjective) VALUES ('froward');
+            INSERT INTO adjectives (adjective) VALUES ('fat-kidneyed');
+            INSERT INTO adjectives (adjective) VALUES ('frothy');
+            INSERT INTO adjectives (adjective) VALUES ('fen-sucked');
+            INSERT INTO adjectives (adjective) VALUES ('gleeking');
+            INSERT INTO adjectives (adjective) VALUES ('flap-mouthed');
+            INSERT INTO adjectives (adjective) VALUES ('goatish');
+            INSERT INTO adjectives (adjective) VALUES ('fly-bitten');
+            INSERT INTO adjectives (adjective) VALUES ('gorbellied');
+            INSERT INTO adjectives (adjective) VALUES ('folly-fallen');
+            INSERT INTO adjectives (adjective) VALUES ('impertinent');
+            INSERT INTO adjectives (adjective) VALUES ('fool-born');
+            INSERT INTO adjectives (adjective) VALUES ('infectious');
+            INSERT INTO adjectives (adjective) VALUES ('full-gorged');
+            INSERT INTO adjectives (adjective) VALUES ('jarring');
+            INSERT INTO adjectives (adjective) VALUES ('guts-griping');
+            INSERT INTO adjectives (adjective) VALUES ('loggerheaded');
+            INSERT INTO adjectives (adjective) VALUES ('half-faced');
+            INSERT INTO adjectives (adjective) VALUES ('lumpish');
+            INSERT INTO adjectives (adjective) VALUES ('hasty-witted');
+            INSERT INTO adjectives (adjective) VALUES ('mammering');
+            INSERT INTO adjectives (adjective) VALUES ('hedge-born');
+            INSERT INTO adjectives (adjective) VALUES ('mangled');
+            INSERT INTO adjectives (adjective) VALUES ('hell-hated');
+            INSERT INTO adjectives (adjective) VALUES ('mewling');
+            INSERT INTO adjectives (adjective) VALUES ('idle-headed');
+            INSERT INTO adjectives (adjective) VALUES ('paunchy');
+            INSERT INTO adjectives (adjective) VALUES ('ill-breeding');
+            INSERT INTO adjectives (adjective) VALUES ('pribbling');
+            INSERT INTO adjectives (adjective) VALUES ('ill-nurtured');
+            INSERT INTO adjectives (adjective) VALUES ('puking');
+            INSERT INTO adjectives (adjective) VALUES ('knotty-pated');
+            INSERT INTO adjectives (adjective) VALUES ('puny');
+            INSERT INTO adjectives (adjective) VALUES ('milk-livered');
+            INSERT INTO adjectives (adjective) VALUES ('qualling');
+            INSERT INTO adjectives (adjective) VALUES ('motley-minded');
+            INSERT INTO adjectives (adjective) VALUES ('rank');
+            INSERT INTO adjectives (adjective) VALUES ('onion-eyed');
+            INSERT INTO adjectives (adjective) VALUES ('reeky');
+            INSERT INTO adjectives (adjective) VALUES ('plume-plucked');
+            INSERT INTO adjectives (adjective) VALUES ('roguish');
+            INSERT INTO adjectives (adjective) VALUES ('pottle-deep');
+            INSERT INTO adjectives (adjective) VALUES ('ruttish');
+            INSERT INTO adjectives (adjective) VALUES ('pox-marked');
+            INSERT INTO adjectives (adjective) VALUES ('saucy');
+            INSERT INTO adjectives (adjective) VALUES ('reeling-ripe');
+            INSERT INTO adjectives (adjective) VALUES ('spleeny');
+            INSERT INTO adjectives (adjective) VALUES ('rough-hewn');
+            INSERT INTO adjectives (adjective) VALUES ('spongy');
+            INSERT INTO adjectives (adjective) VALUES ('rude-growing');
+            INSERT INTO adjectives (adjective) VALUES ('surly');
+            INSERT INTO adjectives (adjective) VALUES ('rump-fed');
+            INSERT INTO adjectives (adjective) VALUES ('tottering');
+            INSERT INTO adjectives (adjective) VALUES ('shard-borne');
+            INSERT INTO adjectives (adjective) VALUES ('unmuzzled');
+            INSERT INTO adjectives (adjective) VALUES ('sheep-biting');
+            INSERT INTO adjectives (adjective) VALUES ('vain');
+            INSERT INTO adjectives (adjective) VALUES ('spur-galled');
+            INSERT INTO adjectives (adjective) VALUES ('venomed');
+            INSERT INTO adjectives (adjective) VALUES ('swag-bellied');
+            INSERT INTO adjectives (adjective) VALUES ('villainous');
+            INSERT INTO adjectives (adjective) VALUES ('tardy-gaited');
+            INSERT INTO adjectives (adjective) VALUES ('warped');
+            INSERT INTO adjectives (adjective) VALUES ('tickle-brained');
+            INSERT INTO adjectives (adjective) VALUES ('wayward');
+            INSERT INTO adjectives (adjective) VALUES ('toad-spotted');
+            INSERT INTO adjectives (adjective) VALUES ('weedy');
+            INSERT INTO adjectives (adjective) VALUES ('unchin-snouted');
+            INSERT INTO adjectives (adjective) VALUES ('yeasty');
+            INSERT INTO adjectives (adjective) VALUES ('weather-bitten');
+            INSERT INTO adjectives (adjective) VALUES ('cullionly');
+            INSERT INTO adjectives (adjective) VALUES ('whoreson');
+            INSERT INTO adjectives (adjective) VALUES ('fusty');
+            INSERT INTO adjectives (adjective) VALUES ('malmsey-nosed');
+            INSERT INTO adjectives (adjective) VALUES ('caluminous');
+            INSERT INTO adjectives (adjective) VALUES ('rampallian');
+            INSERT INTO adjectives (adjective) VALUES ('wimpled');
+            INSERT INTO adjectives (adjective) VALUES ('lily-livered');
+            INSERT INTO adjectives (adjective) VALUES ('burly-boned');
+            INSERT INTO adjectives (adjective) VALUES ('scurvy-valiant');
+            INSERT INTO adjectives (adjective) VALUES ('misbegotten');
+            INSERT INTO adjectives (adjective) VALUES ('brazen-faced');
+            INSERT INTO adjectives (adjective) VALUES ('odiferous');
+            INSERT INTO adjectives (adjective) VALUES ('unwash''d');
+            INSERT INTO adjectives (adjective) VALUES ('poisonous');
+            INSERT INTO adjectives (adjective) VALUES ('bunch-back''d');
+            INSERT INTO adjectives (adjective) VALUES ('fishified');
+            INSERT INTO adjectives (adjective) VALUES ('leaden-footed');
+            INSERT INTO adjectives (adjective) VALUES ('wart-necked');
+            INSERT INTO adjectives (adjective) VALUES ('muddy-mettled');
+            INSERT INTO adjectives (adjective) VALUES ('pigeon-liver''d');
+            INSERT INTO adjectives (adjective) VALUES ('scale-sided');
+        </sql>
+    </changeSet>
+</databaseChangeLog>
