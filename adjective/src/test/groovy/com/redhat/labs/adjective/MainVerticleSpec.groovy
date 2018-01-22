@@ -1,4 +1,4 @@
-package com.redhat.labs.noun
+package com.redhat.labs.adjective
 
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClientOptions
@@ -23,18 +23,19 @@ class MainVerticleSpec extends Specification {
         async.await(10)
     }
 
-    def "Test noun GET service"() {
+    def "Test adjective GET service"() {
         given: "A Vert.x HTTP Client"
-            def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8081))
+            def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8080))
         and: "An instance of AsyncConditions"
             def async = new AsyncConditions(2)
-        when: "An HTTP request is made to the noun service"
-            client.getNow("/noun", { res ->
+
+        when: "An HTTP request is made to the adjective service"
+            client.getNow("/adjective", { res ->
                 async.evaluate {
                     res.statusCode() == 200
                     res.bodyHandler({ bodyRes ->
                         async.evaluate {
-                            !bodyRes.toJsonObject().getString("NOUN").isEmpty()
+                            !bodyRes.toJsonObject().getString("ADJECTIVE").isEmpty()
                         }
                     })
                 }
@@ -44,17 +45,17 @@ class MainVerticleSpec extends Specification {
             async.await(10.0)
     }
 
-    def "Test noun HEALTH service"() {
+    def "Test adjective HEALTH service"() {
         given: "A Vert.x HTTP Client"
-            def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8081))
+            def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8080))
         and: "An instance of AsyncConditions"
             def async = new AsyncConditions(2)
 
-        when: "An HTTP request is made to the noun service"
+        when: "An HTTP request is made to the adjective service"
             client.getNow("/health", { res ->
-                async.evaluate {
-                    res.statusCode() == 200
-                    res.bodyHandler({ bodyRes ->
+            async.evaluate {
+                res.statusCode() == 200
+                res.bodyHandler({ bodyRes ->
                         async.evaluate {
                             bodyRes.toJsonObject().getString("STATUS") == "OK"
                         }

@@ -1,0 +1,16 @@
+{
+  "adjective": {
+    "host": "127.0.0.1",
+    "port": 8080
+  },
+  "noun": {
+    "host": "127.0.0.1",
+    "port": 8081
+  },
+  "breakers": {
+    "maxFailures" : 5,
+    "timeout" : 2000,
+    "fallbackOnFailure" : true,
+    "resetTimeout" : 10000
+  }
+}
