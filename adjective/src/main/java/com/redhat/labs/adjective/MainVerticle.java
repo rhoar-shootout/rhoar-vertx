@@ -1,6 +1,9 @@
 package com.redhat.labs.adjective;
 
 import com.redhat.labs.adjective.services.AdjectiveService;
+import com.redhat.labs.adjective.services.AdjectiveServiceImpl;
+import io.vertx.circuitbreaker.CircuitBreaker;
+import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
@@ -14,6 +17,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory;
+import io.vertx.serviceproxy.ServiceBinder;
 import liquibase.Contexts;
 import liquibase.LabelExpression;
 import liquibase.Liquibase;
@@ -26,7 +30,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
-import static io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory.createRouterFactoryFromFile;
 
 public class MainVerticle extends AbstractVerticle {
 
@@ -40,10 +43,14 @@ public class MainVerticle extends AbstractVerticle {
     public void start(Future<Void> startFuture) {
         // ConfigStore from Kube/OCPs
         Future<JsonObject> f1 = Future.future();
-        this.initConfigRetriever(f1.completer())
-                .compose(this::asyncLoadDbSchema)
-                .compose(this::provisionRouter)
-                .compose(f -> createHttpServer(startFuture, f), startFuture);
+        this.initConfigRetriever(f1.completer());
+        f1.compose(this::asyncLoadDbSchema)
+            .compose(this::provisionRouter)
+            .compose(this::createHttpServer)
+            .compose(s -> {
+                System.out.println("HTTP Server started!");
+                startFuture.complete();
+            }, startFuture);
     }
 
     /**
@@ -51,23 +58,12 @@ public class MainVerticle extends AbstractVerticle {
      * @param handler Handles the results of requesting the configuration
      * @return A {@link Future} to be used in the next chained asynchronous operation
      */
-    Future<JsonObject> initConfigRetriever(Handler<AsyncResult<JsonObject>> handler) {
+    void initConfigRetriever(Handler<AsyncResult<JsonObject>> handler) {
         System.out.println("Retrieving configuration");
-        Future<JsonObject> future = Future.future();
-        JsonObject defaultConfig = new JsonObject()
-                .put("http", new JsonObject()
-                        .put("host", "0.0.0.0")
-                        .put("port", 8080)
-                )
-                .put("db", new JsonObject()
-                        .put("url", "jdbc:h2:mem:adjective;MODE=PostgreSQL")
-                        .put("driver_class", "org.h2.Driver")
-                        .put("user", "sa")
-                        .put("password", ""));
         ConfigStoreOptions defaultOpts = new ConfigStoreOptions()
-                .setType("json")
-                .setConfig(defaultConfig);
-
+                .setType("file")
+                .setFormat("json")
+                .setConfig(new JsonObject().put("path", "default_config.json"));
 
         ConfigRetrieverOptions retrieverOptions = new ConfigRetrieverOptions()
                                             .addStore(defaultOpts);
@@ -84,8 +80,7 @@ public class MainVerticle extends AbstractVerticle {
             retrieverOptions.addStore(confOpts);
         }
 
-        ConfigRetriever.create(vertx, retrieverOptions).getConfig(future.completer());
-        return future;
+        ConfigRetriever.create(vertx, retrieverOptions).getConfig(handler::handle);
     }
 
     /**
@@ -132,9 +127,19 @@ public class MainVerticle extends AbstractVerticle {
      */
     Future<OpenAPI3RouterFactory> provisionRouter(Void v) {
         System.out.println("Router provisioning");
-        service = AdjectiveService.createProxy(vertx, "adjective.service");
+        service = new AdjectiveServiceImpl(vertx);
+        new ServiceBinder(vertx).setAddress("adjective.service").register(AdjectiveService.class, service);
         Future<OpenAPI3RouterFactory> future = Future.future();
-        createRouterFactoryFromFile(vertx, "adjective.yml", future.completer());
+        CircuitBreaker breaker = CircuitBreaker.create("openApi", vertx, new CircuitBreakerOptions()
+                .setMaxFailures(5) // number of failure before opening the circuit
+                .setTimeout(200000) // consider a failure if the operation does not succeed in time
+                .setFallbackOnFailure(false) // do we call the fallback on failure
+                .setResetTimeout(1000000));
+        breaker.<OpenAPI3RouterFactory>execute(f -> OpenAPI3RouterFactory.createRouterFactoryFromFile(
+                    vertx,
+                    "src/main/resources/adjective.yaml",
+                    f.completer())).setHandler(future.completer());
+        System.out.println("Router provisioning COMPLETE");
         return future;
     }
 
@@ -144,12 +149,13 @@ public class MainVerticle extends AbstractVerticle {
      * @param factory A {@link OpenAPI3RouterFactory} instance which is used to create a {@link Router}
      * @return The {@link HttpServer} instance created
      */
-    void createHttpServer(Future startFuture, OpenAPI3RouterFactory factory) {
+    Future<HttpServer> createHttpServer(OpenAPI3RouterFactory factory) {
         System.out.println("Adding API handles");
         factory.addHandlerByOperationId("getAdjective", this::handleAdjGet);
-        factory.addHandlerByOperationId("saveAdjective", this::handleAdjPost);
+        factory.addHandlerByOperationId("addAdjective", this::handleAdjPost);
         factory.addHandlerByOperationId("health", this::healthCheck);
         System.out.println("Creating HTTP Server");
+        Future<HttpServer> future = Future.future();
         JsonObject httpJsonCfg = vertx
                 .getOrCreateContext()
                 .config()
@@ -157,7 +163,8 @@ public class MainVerticle extends AbstractVerticle {
         HttpServerOptions httpConfig = new HttpServerOptions(httpJsonCfg);
         vertx.createHttpServer(httpConfig)
                 .requestHandler(factory.getRouter()::accept)
-                .listen(startFuture.completer());
+                .listen(future.completer());
+        return future;
     }
 
     void healthCheck(RoutingContext ctx) {
@@ -193,13 +200,18 @@ public class MainVerticle extends AbstractVerticle {
     }
 
     void handleAdjGet(RoutingContext ctx) {
+        System.out.println("Recieved GET request for adjective");
         service.get(res -> {
+        System.out.println("Recieved service response for GET adjective");
             if (res.succeeded()) {
+                System.out.println("GET adjective succeeded");
                 ctx.response()
                         .setStatusCode(OK.code())
                         .setStatusMessage(OK.reasonPhrase())
                         .end(res.result().encodePrettily());
             } else {
+                System.out.println("GET adjective failed");
+                res.cause().printStackTrace();
                 ctx.response()
                         .setStatusCode(INTERNAL_SERVER_ERROR.code())
                         .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())

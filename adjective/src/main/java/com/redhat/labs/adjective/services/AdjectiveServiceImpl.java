@@ -33,14 +33,14 @@ public class AdjectiveServiceImpl implements AdjectiveService {
             conn.queryWithParams("INSERT INTO adjectives (adjective) VALUES (?)", params, queryRes -> {
                 if (queryRes.succeeded()) {
                     JsonObject result = new JsonObject()
-                            .put("url", String.format("/rest/v1/adjecttive/%s", adjective));
+                            .put("url", String.format("/rest/v1/adjective/%s", adjective));
                     resultHandler.handle(Future.succeededFuture(result));
                 } else {
-                    resultHandler.handle(ServiceException.fail(2, queryRes.cause().getLocalizedMessage()));
+                    resultHandler.handle(Future.failedFuture(queryRes.cause()));
                 }
             });
         } else {
-            resultHandler.handle(ServiceException.fail(1, connRes.cause().getLocalizedMessage()));
+            resultHandler.handle(Future.failedFuture(connRes.cause()));
         }
     }
 
@@ -51,15 +51,19 @@ public class AdjectiveServiceImpl implements AdjectiveService {
 
     private void handleGetConnectionResult(Handler<AsyncResult<JsonObject>> resultHandler, AsyncResult<SQLConnection> connRes) {
         if (connRes.succeeded()) {
+            System.out.println("DB connection retrieved");
             SQLConnection conn = connRes.result();
             conn.query("SELECT adjective FROM adjectives ORDER BY RAND() LIMIT 1", queryRes -> {
+                System.out.println("DB Query complete");
                 if (queryRes.succeeded()) {
+                    System.out.println("Got adjective from DB");
                     ResultSet resultSet = queryRes.result();
                     JsonObject result = resultSet.getRows().get(0);
                     resultHandler.handle(Future.succeededFuture(result));
                     connRes.result().close();
                 } else {
-                    resultHandler.handle(ServiceException.fail(2, queryRes.cause().getLocalizedMessage()));
+                    System.out.println("Failed to get adjective from DB");
+                    resultHandler.handle(Future.failedFuture(queryRes.cause()));
                 }
             });
         } else {
@@ -75,11 +79,11 @@ public class AdjectiveServiceImpl implements AdjectiveService {
                         handler.handle(Future.succeededFuture(new JsonObject().put("status", "OK")));
                         connRes.result().close();
                     } else {
-                        handler.handle(ServiceException.fail(2, queryRes.cause().getLocalizedMessage()));
+                        handler.handle(Future.failedFuture(queryRes.cause()));
                     }
                 });
             } else {
-                handler.handle(ServiceException.fail(1, connRes.cause().getLocalizedMessage()));
+                handler.handle(Future.failedFuture(connRes.cause()));
             }
         });
     }
