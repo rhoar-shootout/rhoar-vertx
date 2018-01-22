@@ -11,13 +11,19 @@ import io.vertx.core.*;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.api.RequestParameter;
 import io.vertx.ext.web.api.RequestParameters;
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory;
 
+import io.vertx.ext.web.handler.sockjs.BridgeOptions;
+import io.vertx.ext.web.handler.sockjs.SockJSHandler;
+import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.serviceproxy.ServiceBinder;
+
+import java.util.Arrays;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
@@ -105,8 +111,14 @@ public class MainVerticle extends AbstractVerticle {
                 .config()
                 .getJsonObject("http");
         HttpServerOptions httpConfig = new HttpServerOptions(httpJsonCfg);
+        Router router = factory.getRouter();
+        BridgeOptions bOpts = new BridgeOptions();
+        bOpts.setInboundPermitted(Arrays.asList(new PermittedOptions().setAddress("insult.service")));
+        bOpts.setOutboundPermitted(Arrays.asList(new PermittedOptions().setAddress("insult.service")));
+        SockJSHandler sockHandler = SockJSHandler.create(vertx).bridge(bOpts);
+        router.route("/eventbus").handler(sockHandler);
         vertx.createHttpServer(httpConfig)
-                .requestHandler(factory.getRouter()::accept)
+                .requestHandler(router::accept)
                 .listen(future.completer());
         return future;
     }

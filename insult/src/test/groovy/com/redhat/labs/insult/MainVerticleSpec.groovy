@@ -1,5 +1,6 @@
 package com.redhat.labs.insult
 
+import com.redhat.labs.insult.services.InsultService
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClientRequest
@@ -104,6 +105,47 @@ class MainVerticleSpec extends Specification {
             req.putHeader("Content-Type", "application/json")
             req.putHeader("Content-Length", "${body.encodePrettily().getBytes("UTF-8").length}")
             req.write(body.encodePrettily())
+        then: "Ensure all async conditions evaluated correctly"
+            async.await(10)
+    }
+
+    def "Test getting an insult without a name via Service Proxy"() {
+        given: "A Vert.x HTTP client"
+            def client = vertx.createHttpClient()
+        and: "An instance of AsyncConditions"
+            AsyncConditions async = new AsyncConditions(1)
+        when: "An insult is requested"
+            InsultService.createProxy(vertx, "insult.service").getInsult({ res ->
+                async.evaluate {
+                    res.succeeded()
+                    res.result() instanceof JsonObject
+                    JsonObject body = res.result()
+                    body.getString("noun").length() > 0
+                    body.getJsonArray("adj").size() == 2
+                    println(body.encodePrettily())
+                }
+            })
+        then: "Ensure all async conditions evaluated correctly"
+            async.await(10)
+    }
+
+    def "Test getting an insult with a name via Service Proxy"() {
+        given: "A Vert.x HTTP client"
+            def client = vertx.createHttpClient()
+        and: "An instance of AsyncConditions"
+            AsyncConditions async = new AsyncConditions(1)
+        when: "An insult is requested"
+            InsultService.createProxy(vertx, "insult.service").namedInsult("Deven", { res ->
+                async.evaluate {
+                    res.succeeded()
+                    res.result() instanceof JsonObject
+                    JsonObject body = res.result()
+                    body.getString("noun").length() > 0
+                    body.getJsonArray("adj").size() == 2
+                    body.getString("subject") == "Deven"
+                    println(body.encodePrettily())
+                }
+            })
         then: "Ensure all async conditions evaluated correctly"
             async.await(10)
     }
