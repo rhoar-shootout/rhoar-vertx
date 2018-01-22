@@ -33,7 +33,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
 public class MainVerticle extends AbstractVerticle {
 
-    AdjectiveService service;
+    private AdjectiveService service;
 
     /**
      * Initialize and start the {@link MainVerticle}
@@ -47,19 +47,14 @@ public class MainVerticle extends AbstractVerticle {
         f1.compose(this::asyncLoadDbSchema)
             .compose(this::provisionRouter)
             .compose(this::createHttpServer)
-            .compose(s -> {
-                System.out.println("HTTP Server started!");
-                startFuture.complete();
-            }, startFuture);
+            .compose(s -> startFuture.complete(), startFuture);
     }
 
     /**
      * Initialize the {@link ConfigRetriever}
      * @param handler Handles the results of requesting the configuration
-     * @return A {@link Future} to be used in the next chained asynchronous operation
      */
-    void initConfigRetriever(Handler<AsyncResult<JsonObject>> handler) {
-        System.out.println("Retrieving configuration");
+    private void initConfigRetriever(Handler<AsyncResult<JsonObject>> handler) {
         ConfigStoreOptions defaultOpts = new ConfigStoreOptions()
                 .setType("file")
                 .setFormat("json")
@@ -80,7 +75,7 @@ public class MainVerticle extends AbstractVerticle {
             retrieverOptions.addStore(confOpts);
         }
 
-        ConfigRetriever.create(vertx, retrieverOptions).getConfig(handler::handle);
+        ConfigRetriever.create(vertx, retrieverOptions).getConfig(handler);
     }
 
     /**
@@ -88,10 +83,8 @@ public class MainVerticle extends AbstractVerticle {
      * @param config A {@link JsonObject} containing the configuration retrieved in the previous step.
      * @return A {@link Void} {@link Future} to be used to complete the next Async step
      */
-    Future<Void> asyncLoadDbSchema(JsonObject config) {
-        System.out.println("Storing retrieved configuration");
+    private Future<Void> asyncLoadDbSchema(JsonObject config) {
         vertx.getOrCreateContext().config().mergeIn(config);
-        System.out.println("Initializing DB");
         final Future<Void> future = Future.future();
         vertx.executeBlocking(this::loadDbSchema, future.completer());
         return future;
@@ -101,7 +94,7 @@ public class MainVerticle extends AbstractVerticle {
      * Synchronous method to use Liquibase to load the database schema
      * @param f A {@link Future} to be completed when operation is done
      */
-    void loadDbSchema(Future<Void> f) {
+    private void loadDbSchema(Future<Void> f) {
         try {
             JsonObject dbCfg = vertx.getOrCreateContext().config().getJsonObject("db");
             Class.forName(dbCfg.getString("driver_class"));
@@ -125,8 +118,7 @@ public class MainVerticle extends AbstractVerticle {
      * @param v A Void for continuity in the async compoprovisionedsition
      * @return An {@link OpenAPI3RouterFactory} {@link Future} to be used to complete the next Async step
      */
-    Future<OpenAPI3RouterFactory> provisionRouter(Void v) {
-        System.out.println("Router provisioning");
+    private Future<OpenAPI3RouterFactory> provisionRouter(Void v) {
         service = new AdjectiveServiceImpl(vertx);
         new ServiceBinder(vertx).setAddress("adjective.service").register(AdjectiveService.class, service);
         Future<OpenAPI3RouterFactory> future = Future.future();
@@ -139,7 +131,6 @@ public class MainVerticle extends AbstractVerticle {
                     vertx,
                     "src/main/resources/adjective.yaml",
                     f.completer())).setHandler(future.completer());
-        System.out.println("Router provisioning COMPLETE");
         return future;
     }
 
@@ -149,12 +140,10 @@ public class MainVerticle extends AbstractVerticle {
      * @param factory A {@link OpenAPI3RouterFactory} instance which is used to create a {@link Router}
      * @return The {@link HttpServer} instance created
      */
-    Future<HttpServer> createHttpServer(OpenAPI3RouterFactory factory) {
-        System.out.println("Adding API handles");
+    private Future<HttpServer> createHttpServer(OpenAPI3RouterFactory factory) {
         factory.addHandlerByOperationId("getAdjective", this::handleAdjGet);
         factory.addHandlerByOperationId("addAdjective", this::handleAdjPost);
         factory.addHandlerByOperationId("health", this::healthCheck);
-        System.out.println("Creating HTTP Server");
         Future<HttpServer> future = Future.future();
         JsonObject httpJsonCfg = vertx
                 .getOrCreateContext()
@@ -167,7 +156,7 @@ public class MainVerticle extends AbstractVerticle {
         return future;
     }
 
-    void healthCheck(RoutingContext ctx) {
+    private void healthCheck(RoutingContext ctx) {
         service.check(res -> {
             if (res.succeeded()) {
                 ctx.response()
@@ -183,7 +172,7 @@ public class MainVerticle extends AbstractVerticle {
         });
     }
 
-    void handleAdjPost(RoutingContext ctx) {
+    private void handleAdjPost(RoutingContext ctx) {
         service.get(res -> {
             if (res.succeeded()) {
                 ctx.response()
@@ -199,19 +188,14 @@ public class MainVerticle extends AbstractVerticle {
         });
     }
 
-    void handleAdjGet(RoutingContext ctx) {
-        System.out.println("Recieved GET request for adjective");
+    private void handleAdjGet(RoutingContext ctx) {
         service.get(res -> {
-        System.out.println("Recieved service response for GET adjective");
             if (res.succeeded()) {
-                System.out.println("GET adjective succeeded");
                 ctx.response()
                         .setStatusCode(OK.code())
                         .setStatusMessage(OK.reasonPhrase())
                         .end(res.result().encodePrettily());
             } else {
-                System.out.println("GET adjective failed");
-                res.cause().printStackTrace();
                 ctx.response()
                         .setStatusCode(INTERNAL_SERVER_ERROR.code())
                         .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
