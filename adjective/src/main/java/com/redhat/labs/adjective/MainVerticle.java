@@ -135,7 +135,7 @@ public class MainVerticle extends AbstractVerticle {
         breaker.<OpenAPI3RouterFactory>execute(f -> OpenAPI3RouterFactory.createRouterFactoryFromFile(
                 vertx,
                 getClass().getResource("/adjective.yaml").getFile(),
-                    f.completer())).setHandler(future.completer());
+                f.completer())).setHandler(future.completer());
         return future;
     }
 

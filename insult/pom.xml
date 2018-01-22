@@ -102,6 +102,26 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>io.vertx.core.Launcher</mainClass>
+                    <includeProjectDependencies>true</includeProjectDependencies>
+                    <arguments>
+                        <argument>run</argument>
+                        <argument>com.redhat.labs.insult.MainVerticle</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>vertx-maven-plugin</artifactId>
             </plugin>

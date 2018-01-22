@@ -70,7 +70,9 @@ public class MainVerticle extends AbstractVerticle {
             retrieverOptions.addStore(confOpts);
         }
 
-        ConfigRetriever.create(vertx, retrieverOptions).getConfig(handler);
+        ConfigRetriever
+                .create(vertx, retrieverOptions)
+                .getConfig(handler);
     }
 
     /**
