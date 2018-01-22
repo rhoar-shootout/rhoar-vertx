@@ -1,0 +1,76 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="dphillips" id="1516548822634-1">
+        <createTable tableName="nouns">
+            <column autoIncrement="true" name="id" type="SERIAL">
+                <constraints primaryKey="true" primaryKeyName="nouns_pkey"/>
+            </column>
+            <column name="noun" type="VARCHAR(240)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="dphillips" id="1516548822634-2">
+        <sql splitStatements="true" endDelimiter="\n">
+            INSERT INTO nouns (noun) VALUES ('apple-john');
+            INSERT INTO nouns (noun) VALUES ('baggage');
+            INSERT INTO nouns (noun) VALUES ('barnacle');
+            INSERT INTO nouns (noun) VALUES ('bladder');
+            INSERT INTO nouns (noun) VALUES ('boar-pig');
+            INSERT INTO nouns (noun) VALUES ('bugbear');
+            INSERT INTO nouns (noun) VALUES ('bum-bailey');
+            INSERT INTO nouns (noun) VALUES ('canker-blossom');
+            INSERT INTO nouns (noun) VALUES ('clack-dish');
+            INSERT INTO nouns (noun) VALUES ('clotpole');
+            INSERT INTO nouns (noun) VALUES ('coxcomb');
+            INSERT INTO nouns (noun) VALUES ('codpiece');
+            INSERT INTO nouns (noun) VALUES ('death-token');
+            INSERT INTO nouns (noun) VALUES ('dewberry');
+            INSERT INTO nouns (noun) VALUES ('flap-dragon');
+            INSERT INTO nouns (noun) VALUES ('flax-wench');
+            INSERT INTO nouns (noun) VALUES ('flirt-gill');
+            INSERT INTO nouns (noun) VALUES ('foot-licker');
+            INSERT INTO nouns (noun) VALUES ('fustilarian');
+            INSERT INTO nouns (noun) VALUES ('giglet');
+            INSERT INTO nouns (noun) VALUES ('gudgeon');
+            INSERT INTO nouns (noun) VALUES ('haggard');
+            INSERT INTO nouns (noun) VALUES ('harpy');
+            INSERT INTO nouns (noun) VALUES ('hedge-pig');
+            INSERT INTO nouns (noun) VALUES ('horn-beast');
+            INSERT INTO nouns (noun) VALUES ('hugger-mugger');
+            INSERT INTO nouns (noun) VALUES ('joithead');
+            INSERT INTO nouns (noun) VALUES ('lewdster');
+            INSERT INTO nouns (noun) VALUES ('lout');
+            INSERT INTO nouns (noun) VALUES ('maggot-pie');
+            INSERT INTO nouns (noun) VALUES ('malt-worm');
+            INSERT INTO nouns (noun) VALUES ('mammet');
+            INSERT INTO nouns (noun) VALUES ('measle');
+            INSERT INTO nouns (noun) VALUES ('minnow');
+            INSERT INTO nouns (noun) VALUES ('miscreant');
+            INSERT INTO nouns (noun) VALUES ('moldwarp');
+            INSERT INTO nouns (noun) VALUES ('mumble-news');
+            INSERT INTO nouns (noun) VALUES ('nut-hook');
+            INSERT INTO nouns (noun) VALUES ('pigeon-egg');
+            INSERT INTO nouns (noun) VALUES ('pignut');
+            INSERT INTO nouns (noun) VALUES ('puttock');
+            INSERT INTO nouns (noun) VALUES ('pumpion');
+            INSERT INTO nouns (noun) VALUES ('ratsbane');
+            INSERT INTO nouns (noun) VALUES ('scut');
+            INSERT INTO nouns (noun) VALUES ('skainsmate');
+            INSERT INTO nouns (noun) VALUES ('strumpet');
+            INSERT INTO nouns (noun) VALUES ('varlot');
+            INSERT INTO nouns (noun) VALUES ('vassal');
+            INSERT INTO nouns (noun) VALUES ('whey-face');
+            INSERT INTO nouns (noun) VALUES ('wagtail');
+            INSERT INTO nouns (noun) VALUES ('knave');
+            INSERT INTO nouns (noun) VALUES ('blind-worm');
+            INSERT INTO nouns (noun) VALUES ('popinjay');
+            INSERT INTO nouns (noun) VALUES ('scullian');
+            INSERT INTO nouns (noun) VALUES ('jolt-head');
+            INSERT INTO nouns (noun) VALUES ('malcontent');
+            INSERT INTO nouns (noun) VALUES ('devil-monk');
+            INSERT INTO nouns (noun) VALUES ('toad');
+            INSERT INTO nouns (noun) VALUES ('rascal');
+            INSERT INTO nouns (noun) VALUES ('Basket-Cockle');
+            INSERT INTO nouns (noun) VALUES ('rapscallion');
+        </sql>
+    </changeSet>
+</databaseChangeLog>

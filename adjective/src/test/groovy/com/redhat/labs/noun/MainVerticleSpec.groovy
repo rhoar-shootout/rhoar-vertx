@@ -1,4 +1,4 @@
-package com.redhat.labs.adjective
+package com.redhat.labs.noun
 
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClientOptions
@@ -29,8 +29,8 @@ class MainVerticleSpec extends Specification {
         and: "An instance of AsyncConditions"
             def async = new AsyncConditions(2)
 
-        when: "An HTTP request is made to the adjective service"
-            client.getNow("/adjective", { res ->
+        when: "An HTTP request is made to the noun service"
+            client.getNow("/noun", { res ->
                 async.evaluate {
                     res.statusCode() == 200
                     res.bodyHandler({ bodyRes ->
@@ -51,8 +51,8 @@ class MainVerticleSpec extends Specification {
         and: "An instance of AsyncConditions"
         def async = new AsyncConditions(2)
 
-        when: "An HTTP request is made to the adjective service"
-        client.getNow("/adjective", { res ->
+        when: "An HTTP request is made to the noun service"
+        client.getNow("/noun", { res ->
             async.evaluate {
                 res.statusCode() == 200
                 res.bodyHandler({ bodyRes ->

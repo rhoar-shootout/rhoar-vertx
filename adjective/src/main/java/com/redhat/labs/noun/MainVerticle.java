@@ -1,7 +1,7 @@
-package com.redhat.labs.adjective;
+package com.redhat.labs.noun;
 
-import com.redhat.labs.adjective.services.AdjectiveService;
-import com.redhat.labs.adjective.services.AdjectiveServiceImpl;
+import com.redhat.labs.noun.services.AdjectiveService;
+import com.redhat.labs.noun.services.AdjectiveServiceImpl;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.config.ConfigRetriever;
@@ -120,7 +120,7 @@ public class MainVerticle extends AbstractVerticle {
      */
     private Future<OpenAPI3RouterFactory> provisionRouter(Void v) {
         service = new AdjectiveServiceImpl(vertx);
-        new ServiceBinder(vertx).setAddress("adjective.service").register(AdjectiveService.class, service);
+        new ServiceBinder(vertx).setAddress("noun.service").register(AdjectiveService.class, service);
         Future<OpenAPI3RouterFactory> future = Future.future();
         CircuitBreaker breaker = CircuitBreaker.create("openApi", vertx, new CircuitBreakerOptions()
                 .setMaxFailures(5) // number of failure before opening the circuit
@@ -129,7 +129,7 @@ public class MainVerticle extends AbstractVerticle {
                 .setResetTimeout(1000000));
         breaker.<OpenAPI3RouterFactory>execute(f -> OpenAPI3RouterFactory.createRouterFactoryFromFile(
                     vertx,
-                    "src/main/resources/adjective.yaml",
+                    "src/main/resources/noun.yaml",
                     f.completer())).setHandler(future.completer());
         return future;
     }

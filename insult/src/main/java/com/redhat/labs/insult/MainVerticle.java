@@ -106,7 +106,7 @@ public class MainVerticle extends AbstractVerticle {
                 .setTimeout(50)
                 .setFallbackOnFailure(true);
 
-        CircuitBreaker breaker = CircuitBreaker.create("adjective", vertx, options);
+        CircuitBreaker breaker = CircuitBreaker.create("noun", vertx, options);
 
         Future<String> adjective = breaker.executeWithFallback(future -> {
             // Try the actual client request

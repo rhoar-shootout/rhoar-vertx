@@ -1,4 +1,4 @@
-package com.redhat.labs.adjective.services;
+package com.redhat.labs.noun.services;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -18,7 +18,7 @@ public class AdjectiveServiceImpl implements AdjectiveService {
 
     public AdjectiveServiceImpl(Vertx vertx) {
         JsonObject dbConfig = vertx.getOrCreateContext().config().getJsonObject("db");
-        client = JDBCClient.createShared(vertx, dbConfig, "adjective");
+        client = JDBCClient.createShared(vertx, dbConfig, "noun");
     }
 
     @Override
@@ -30,10 +30,10 @@ public class AdjectiveServiceImpl implements AdjectiveService {
         if (connRes.succeeded()) {
             SQLConnection conn = connRes.result();
             JsonArray params = new JsonArray().add(adjective);
-            conn.queryWithParams("INSERT INTO adjectives (adjective) VALUES (?)", params, queryRes -> {
+            conn.queryWithParams("INSERT INTO adjectives (noun) VALUES (?)", params, queryRes -> {
                 if (queryRes.succeeded()) {
                     JsonObject result = new JsonObject()
-                            .put("url", String.format("/rest/v1/adjective/%s", adjective));
+                            .put("url", String.format("/rest/v1/noun/%s", adjective));
                     resultHandler.handle(Future.succeededFuture(result));
                 } else {
                     resultHandler.handle(Future.failedFuture(queryRes.cause()));
@@ -53,16 +53,16 @@ public class AdjectiveServiceImpl implements AdjectiveService {
         if (connRes.succeeded()) {
             System.out.println("DB connection retrieved");
             SQLConnection conn = connRes.result();
-            conn.query("SELECT adjective FROM adjectives ORDER BY RAND() LIMIT 1", queryRes -> {
+            conn.query("SELECT noun FROM adjectives ORDER BY RAND() LIMIT 1", queryRes -> {
                 System.out.println("DB Query complete");
                 if (queryRes.succeeded()) {
-                    System.out.println("Got adjective from DB");
+                    System.out.println("Got noun from DB");
                     ResultSet resultSet = queryRes.result();
                     JsonObject result = resultSet.getRows().get(0);
                     resultHandler.handle(Future.succeededFuture(result));
                     connRes.result().close();
                 } else {
-                    System.out.println("Failed to get adjective from DB");
+                    System.out.println("Failed to get noun from DB");
                     resultHandler.handle(Future.failedFuture(queryRes.cause()));
                 }
             });

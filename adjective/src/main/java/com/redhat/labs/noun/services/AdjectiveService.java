@@ -1,4 +1,4 @@
-package com.redhat.labs.adjective.services;
+package com.redhat.labs.noun.services;
 
 import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.codegen.annotations.VertxGen;

@@ -9,8 +9,8 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 tags:
-  - name: adjective
-    description: An Elizabethan derrogatory adjective
+  - name: noun
+    description: An Elizabethan derrogatory noun
 paths:
   /health:
     get:
@@ -33,7 +33,7 @@ paths:
   /adjective:
     get:
       tags:
-        - adjective
+        - noun
       summary: Get an Adjective
       description: ''
       operationId: getAdjective
@@ -46,8 +46,8 @@ paths:
                 $ref: '#/components/schemas/adjective'
     post:
       tags:
-        - adjective
-      summary: Add an adjective
+        - noun
+      summary: Add an noun
       description: ''
       operationId: addAdjective
       requestBody:
@@ -67,14 +67,14 @@ paths:
   '/adjective/{adjective}':
     delete:
       tags:
-        - adjective
-      summary: Delete an adjective
-      description: Delete the adjective specified in the path
+        - noun
+      summary: Delete an noun
+      description: Delete the noun specified in the path
       operationId: deleteAdjective
       parameters:
-        - name: adjective
+        - name: noun
           in: path
-          description: The adjective to be deleted
+          description: The noun to be deleted
           required: true
           schema:
             type: string
@@ -101,7 +101,7 @@ components:
     adjective:
       type: object
       required:
-      - adjective
+      - noun
       properties:
         adjective:
           type: string
