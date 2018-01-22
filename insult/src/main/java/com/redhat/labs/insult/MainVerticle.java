@@ -8,18 +8,15 @@ import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.*;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.api.RequestParameter;
+import io.vertx.ext.web.api.RequestParameters;
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory;
 
-import java.util.Arrays;
-import io.vertx.ext.web.handler.sockjs.BridgeOptions;
-import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.serviceproxy.ServiceBinder;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
@@ -87,7 +84,7 @@ public class MainVerticle extends AbstractVerticle {
                 .setResetTimeout(1000000));
         breaker.<OpenAPI3RouterFactory>execute(f -> OpenAPI3RouterFactory.createRouterFactoryFromFile(
                 vertx,
-                "./src/main/resources/insult.yaml",
+                getClass().getResource("/insult.yaml").getFile(),
                 f.completer())).setHandler(future.completer());
         return future;
     }
@@ -115,31 +112,25 @@ public class MainVerticle extends AbstractVerticle {
     }
 
     private void handleNamedInsult(RoutingContext ctx) {
-        ctx.request().bodyHandler(bodyBuffer -> {
-            JsonObject reqBody = bodyBuffer.toJsonObject();
-            String name = reqBody.getString("name");
-            if (name!=null && name.length()>0) {
-                service.namedInsult(name, result -> {
-                    if (result.succeeded()) {
-                        ctx.response()
-                            .setStatusMessage(OK.reasonPhrase())
-                            .setStatusCode(OK.code())
-                            .end(result.result().encodePrettily());
-                    } else {
-                        ctx.response()
-                            .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
-                            .setStatusCode(INTERNAL_SERVER_ERROR.code())
-                            .end();
-                    }
-                });
-            } else {
-                ctx.response()
-                    .setStatusMessage(BAD_REQUEST.reasonPhrase())
-                    .setStatusCode(BAD_REQUEST.code())
-                    .end();
-            }
-        });
-
+        RequestParameters params = ctx.get("parsedParameters");
+        RequestParameter bodyParam = params.body();
+        JsonObject reqBody = bodyParam.getJsonObject();
+        String name = reqBody.getString("name");
+        if (name!=null && name.length()>0) {
+            service.namedInsult(name, result -> {
+                if (result.succeeded()) {
+                    ctx.response()
+                        .setStatusMessage(OK.reasonPhrase())
+                        .setStatusCode(OK.code())
+                        .end(result.result().encodePrettily());
+                } else {
+                    ctx.response()
+                        .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
+                        .setStatusCode(INTERNAL_SERVER_ERROR.code())
+                        .end();
+                }
+            });
+        }
     }
 
     private void handleInsult(RoutingContext ctx) {

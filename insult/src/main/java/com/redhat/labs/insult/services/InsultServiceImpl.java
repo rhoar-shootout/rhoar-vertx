@@ -27,71 +27,100 @@ public class InsultServiceImpl implements InsultService {
         nounCfg = vertx.getOrCreateContext().config().getJsonObject("noun");
         adjCfg = vertx.getOrCreateContext().config().getJsonObject("adjective");
         breakerCfg = vertx.getOrCreateContext().config().getJsonObject("breakers");
+        nounBreaker = CircuitBreaker.create("noun", vertx, new CircuitBreakerOptions(breakerCfg));
+        nounBreaker.openHandler(o -> {
+            System.out.println("Noun circuit breaker has opened");
+        }).closeHandler(c -> {
+            System.out.println("Noun circuit breaker has closed");
+        });
+        adjBreaker = CircuitBreaker.create("adj", vertx, new CircuitBreakerOptions(breakerCfg));
+        adjBreaker.openHandler(o -> {
+            System.out.println("Adjective circuit breaker has opened");
+        }).closeHandler(c -> {
+            System.out.println("Adjective circuit breaker has closed");
+        });
     }
 
     @Override
     public void getInsult(Handler<AsyncResult<JsonObject>> resultHandler) {
-        nounBreaker = CircuitBreaker.create("noun", vertx, new CircuitBreakerOptions(breakerCfg));
-        adjBreaker = CircuitBreaker.create("adj", vertx, new CircuitBreakerOptions(breakerCfg));
 
-        Future<HttpClientResponse> nounFuture = Future.future();
-        nounBreaker.execute(f -> {
+        Future<String> nounFuture = Future.future();
+        nounBreaker.<String>execute(f -> {
+            System.out.println("Executing Noun GET");
             client.getNow(nounCfg.getInteger("port"), nounCfg.getString("host"), "/noun", r -> {
                 if (r.statusCode() == OK.code()) {
-                    f.complete(r);
+                    r.bodyHandler(b -> {
+                        try {
+                            JsonObject body = b.toJsonObject();
+                            f.complete("noun:"+body.getString("NOUN"));
+                        } catch (Exception e) {
+                            f.complete("[noun error]");
+                        }
+                    });
                 } else {
                     f.complete("[noun timeout]");
                 }
             });
-        }).setHandler(res -> nounFuture.complete((HttpClientResponse)res));
+        }).setHandler(nounFuture.completer());
 
-        Future<HttpClientResponse> adj1Future = Future.future();
-        adjBreaker.execute(f -> {
+        Future<String> adj1Future = Future.future();
+        adjBreaker.<String>execute(f -> {
+            System.out.println("Executing Adj1 GET");
             client.getNow(adjCfg.getInteger("port"), adjCfg.getString("host"), "/adjective", r -> {
                 if (r.statusCode() == OK.code()) {
-                    f.complete(r);
+                    r.bodyHandler(b -> {
+                        try {
+                            JsonObject body = b.toJsonObject();
+                            f.complete("adjective:"+body.getString("ADJECTIVE"));
+                        } catch (Exception e) {
+                            f.complete("[adjective error]");
+                        }
+                    });
                 } else {
-                    f.complete("[adjective timeout]");
+                    f.complete("[noun timeout]");
                 }
             });
-        }).setHandler(res -> adj1Future.complete((HttpClientResponse)res));
+        }).setHandler(adj1Future.completer());
 
-        Future<HttpClientResponse> adj2Future = Future.future();
-        adjBreaker.execute(f -> {
+        Future<String> adj2Future = Future.future();
+        adjBreaker.<String>execute(f -> {
+            System.out.println("Executing Adj2 GET");
             client.getNow(adjCfg.getInteger("port"), adjCfg.getString("host"), "/adjective", r -> {
                 if (r.statusCode() == OK.code()) {
-                    f.complete(r);
+                    r.bodyHandler(b -> {
+                        try {
+                            JsonObject body = b.toJsonObject();
+                            f.complete("adjective:"+body.getString("ADJECTIVE"));
+                        } catch (Exception e) {
+                            f.complete("[adjective error]");
+                        }
+                    });
                 } else {
-                    f.complete("[adjective timeout]");
+                    f.complete("[noun timeout]");
                 }
             });
-        }).setHandler(res -> adj2Future.complete((HttpClientResponse)res));
+        }).setHandler(adj2Future.completer());
 
         CompositeFuture.all(nounFuture, adj1Future, adj2Future).setHandler(res -> {
+            System.out.println("Entered compositeFuture handler");
             if (res.succeeded()) {
                 JsonObject response = new JsonObject();
                 res.result().list().stream().map(resp -> {
-                    HttpClientResponse cResp = (HttpClientResponse)resp;
+                    String cResp = (String)resp;
                     return cResp;
                 })
-                .filter(r -> r.statusCode()==200)
                 .forEach(r -> {
-                    r.bodyHandler(b -> {
-                        try {
-                            JsonObject responseObj = b.toJsonObject();
-                            if (responseObj.containsKey("noun") || responseObj.containsKey("NOUN")) {
-                                response.put("noun", responseObj.getString("noun"));
-                            } else if (responseObj.containsKey("ADJECTIVE") || responseObj.containsKey("adjective")) {
-                                if (!response.containsKey("adj")) {
-                                    response.put("adj", new JsonArray());
-                                }
-                                response.getJsonArray("adj").add(responseObj.getString("adjective"));
-                            }
-                        } catch (Exception e) {
-                            // Ignore this exception
+                    System.out.println("Processing: "+r);
+                    if (r.startsWith("noun:")) {
+                        response.put("noun", r.split(":")[1]);
+                    } else if (r.startsWith("adjective:")) {
+                        if (!response.containsKey("adj")) {
+                            response.put("adj", new JsonArray());
                         }
-                    });
+                        response.getJsonArray("adj").add(r.split(":")[1]);
+                    }
                 });
+                resultHandler.handle(Future.succeededFuture(response));
             } else {
                 resultHandler.handle(Future.failedFuture(res.cause()));
             }
@@ -101,69 +130,83 @@ public class InsultServiceImpl implements InsultService {
     @Override
     public void namedInsult(String name, Handler<AsyncResult<JsonObject>> resultHandler) {
 
-        Future<HttpClientResponse> nounFuture = Future.future();
-        nounBreaker.execute(f -> {
+        Future<String> nounFuture = Future.future();
+        nounBreaker.<String>execute(f -> {
             client.getNow(nounCfg.getInteger("port"), nounCfg.getString("host"), "/noun", r -> {
                 if (r.statusCode() == OK.code()) {
-                    f.complete(r);
+                    r.bodyHandler(b -> {
+                        try {
+                            JsonObject body = b.toJsonObject();
+                            f.complete("noun:"+body.getString("NOUN"));
+                        } catch (Exception e) {
+                            f.complete("[noun error]");
+                        }
+                    });
                 } else {
                     f.complete("[noun timeout]");
                 }
             });
-        }).setHandler(res -> nounFuture.complete((HttpClientResponse)res));
+        }).setHandler(nounFuture.completer());
 
-        Future<HttpClientResponse> adj1Future = Future.future();
-        adjBreaker.execute(f -> {
+        Future<String> adj1Future = Future.future();
+        adjBreaker.<String>execute(f -> {
             client.getNow(adjCfg.getInteger("port"), adjCfg.getString("host"), "/adjective", r -> {
                 if (r.statusCode() == OK.code()) {
-                    f.complete(r);
+                    r.bodyHandler(b -> {
+                        try {
+                            JsonObject body = b.toJsonObject();
+                            f.complete("adjective:"+body.getString("ADJECTIVE"));
+                        } catch (Exception e) {
+                            f.complete("[adjective error]");
+                        }
+                    });
                 } else {
-                    f.complete("[adjective timeout]");
+                    f.complete("[noun timeout]");
                 }
             });
-        }).setHandler(res -> adj1Future.complete((HttpClientResponse)res));
+        }).setHandler(adj1Future.completer());
 
-        Future<HttpClientResponse> adj2Future = Future.future();
-        adjBreaker.execute(f -> {
+        Future<String> adj2Future = Future.future();
+        adjBreaker.<String>execute(f -> {
             client.getNow(adjCfg.getInteger("port"), adjCfg.getString("host"), "/adjective", r -> {
                 if (r.statusCode() == OK.code()) {
-                    f.complete(r);
+                    r.bodyHandler(b -> {
+                        try {
+                            JsonObject body = b.toJsonObject();
+                            f.complete("adjective:"+body.getString("ADJECTIVE"));
+                        } catch (Exception e) {
+                            f.complete("[adjective error]");
+                        }
+                    });
                 } else {
-                    f.complete("[adjective timeout]");
+                    f.complete("[noun timeout]");
                 }
             });
-        }).setHandler(res -> adj2Future.complete((HttpClientResponse)res));
+        }).setHandler(adj2Future.completer());
 
         CompositeFuture.all(nounFuture, adj1Future, adj2Future).setHandler(res -> {
             if (res.succeeded()) {
-                JsonObject response = new JsonObject().put("subject", name);
+                JsonObject response = new JsonObject()
+                        .put("subject", name);
                 res.result().list().stream().map(resp -> {
-                    HttpClientResponse cResp = (HttpClientResponse)resp;
+                    String cResp = (String)resp;
                     return cResp;
                 })
-                        .filter(r -> r.statusCode()==200)
-                        .forEach(r -> {
-                            r.bodyHandler(b -> {
-                                try {
-                                    JsonObject responseObj = b.toJsonObject();
-                                    if (responseObj.containsKey("noun") || responseObj.containsKey("NOUN")) {
-                                        response.put("noun", responseObj.getString("noun"));
-                                    } else if (responseObj.containsKey("ADJECTIVE") || responseObj.containsKey("adjective")) {
-                                        if (!response.containsKey("adj")) {
-                                            response.put("adj", new JsonArray());
-                                        }
-                                        response.getJsonArray("adj").add(responseObj.getString("adjective"));
-                                    }
-                                } catch (Exception e) {
-                                    // Ignore this exception
-                                }
-                            });
-                        });
+                .forEach(r -> {
+                    if (r.startsWith("noun:")) {
+                        response.put("noun", r.split(":")[1]);
+                    } else if (r.startsWith("adjective:")) {
+                        if (!response.containsKey("adj")) {
+                            response.put("adj", new JsonArray());
+                        }
+                        response.getJsonArray("adj").add(r.split(":")[1]);
+                    }
+                });
+                resultHandler.handle(Future.succeededFuture(response));
             } else {
                 resultHandler.handle(Future.failedFuture(res.cause()));
             }
         });
-
     }
 
     public void check(Handler<AsyncResult<JsonObject>> handler) {

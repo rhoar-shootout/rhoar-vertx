@@ -24,6 +24,7 @@ import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.DatabaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 
 import java.sql.Connection;
@@ -58,7 +59,7 @@ public class MainVerticle extends AbstractVerticle {
         ConfigStoreOptions defaultOpts = new ConfigStoreOptions()
                 .setType("file")
                 .setFormat("json")
-                .setConfig(new JsonObject().put("path", "default_config.json"));
+                .setConfig(new JsonObject().put("path", "adj_default_config.json"));
 
         ConfigRetrieverOptions retrieverOptions = new ConfigRetrieverOptions()
                                             .addStore(defaultOpts);
@@ -104,12 +105,16 @@ public class MainVerticle extends AbstractVerticle {
                     dbCfg.getString("password"))) {
                 Database database = DatabaseFactory.getInstance()
                         .findCorrectDatabaseImplementation(new JdbcConnection(conn));
-                Liquibase liquibase = new Liquibase("schema.xml", new ClassLoaderResourceAccessor(), database);
+                Liquibase liquibase = new Liquibase("adjective_schema.xml", new ClassLoaderResourceAccessor(), database);
                 liquibase.update(new Contexts(), new LabelExpression());
                 f.complete();
             }
         } catch (Exception e) {
-            f.fail(e);
+            if (e.getCause()!=null && e.getCause().getLocalizedMessage().contains("already exists")) {
+                f.complete();
+            } else {
+                f.fail(e);
+            }
         }
     }
 
@@ -120,7 +125,7 @@ public class MainVerticle extends AbstractVerticle {
      */
     private Future<OpenAPI3RouterFactory> provisionRouter(Void v) {
         service = new AdjectiveServiceImpl(vertx);
-        new ServiceBinder(vertx).setAddress("noun.service").register(AdjectiveService.class, service);
+        new ServiceBinder(vertx).setAddress("adjective.service").register(AdjectiveService.class, service);
         Future<OpenAPI3RouterFactory> future = Future.future();
         CircuitBreaker breaker = CircuitBreaker.create("openApi", vertx, new CircuitBreakerOptions()
                 .setMaxFailures(5) // number of failure before opening the circuit
@@ -128,8 +133,8 @@ public class MainVerticle extends AbstractVerticle {
                 .setFallbackOnFailure(false) // do we call the fallback on failure
                 .setResetTimeout(1000000));
         breaker.<OpenAPI3RouterFactory>execute(f -> OpenAPI3RouterFactory.createRouterFactoryFromFile(
-                    vertx,
-                    "src/main/resources/adjective.yaml",
+                vertx,
+                getClass().getResource("/adjective.yaml").getFile(),
                     f.completer())).setHandler(future.completer());
         return future;
     }

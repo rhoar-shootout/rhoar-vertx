@@ -24,6 +24,7 @@ import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.DatabaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 
 import java.sql.Connection;
@@ -58,7 +59,7 @@ public class MainVerticle extends AbstractVerticle {
         ConfigStoreOptions defaultOpts = new ConfigStoreOptions()
                 .setType("file")
                 .setFormat("json")
-                .setConfig(new JsonObject().put("path", "default_config.json"));
+                .setConfig(new JsonObject().put("path", "noun_default_config.json"));
 
         ConfigRetrieverOptions retrieverOptions = new ConfigRetrieverOptions()
                                             .addStore(defaultOpts);
@@ -104,12 +105,16 @@ public class MainVerticle extends AbstractVerticle {
                     dbCfg.getString("password"))) {
                 Database database = DatabaseFactory.getInstance()
                         .findCorrectDatabaseImplementation(new JdbcConnection(conn));
-                Liquibase liquibase = new Liquibase("schema.xml", new ClassLoaderResourceAccessor(), database);
+                Liquibase liquibase = new Liquibase("noun_schema.xml", new ClassLoaderResourceAccessor(), database);
                 liquibase.update(new Contexts(), new LabelExpression());
                 f.complete();
             }
         } catch (Exception e) {
-            f.fail(e);
+            if (e.getCause()!=null && e.getCause().getLocalizedMessage().contains("already exists")) {
+                f.complete();
+            } else {
+                f.fail(e);
+            }
         }
     }
 
@@ -129,7 +134,7 @@ public class MainVerticle extends AbstractVerticle {
                 .setResetTimeout(1000000));
         breaker.<OpenAPI3RouterFactory>execute(f -> OpenAPI3RouterFactory.createRouterFactoryFromFile(
                     vertx,
-                    "./src/main/resources/noun.yaml",
+                    getClass().getResource("/noun.yaml").getFile(),
                     f.completer())).setHandler(future.completer());
         return future;
     }

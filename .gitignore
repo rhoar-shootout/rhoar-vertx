@@ -7,5 +7,7 @@
 **/node_modules
 **/node_modules/**
 **/*.db
+**/.vertx/**
+**/.vertx
 ui/src/main/frontend/node
 ui/src/main/frontend/node/**

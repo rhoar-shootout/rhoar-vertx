@@ -25,7 +25,7 @@ class MainVerticleSpec extends Specification {
 
     def "Test adjective GET service"() {
         given: "A Vert.x HTTP Client"
-            def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8080))
+            def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8082))
         and: "An instance of AsyncConditions"
             def async = new AsyncConditions(2)
 
@@ -47,7 +47,7 @@ class MainVerticleSpec extends Specification {
 
     def "Test adjective HEALTH service"() {
         given: "A Vert.x HTTP Client"
-            def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8080))
+            def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8082))
         and: "An instance of AsyncConditions"
             def async = new AsyncConditions(2)
 
