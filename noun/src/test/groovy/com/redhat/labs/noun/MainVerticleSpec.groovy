@@ -28,7 +28,6 @@ class MainVerticleSpec extends Specification {
             def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8080))
         and: "An instance of AsyncConditions"
             def async = new AsyncConditions(2)
-adjective
         when: "An HTTP request is made to the noun service"
             client.getNow("/noun", { res ->
                 async.evaluate {
@@ -65,5 +64,17 @@ adjective
 
         then: "Expect async conditions to evaluate correctly"
             async.await(10.0)
+    }
+
+    def cleanupSpec() {
+        AsyncConditions async = new AsyncConditions(1)
+
+        vertx.close({ res ->
+            async.evaluate {
+                res.succeeded()
+            }
+        })
+
+        async.await(5)
     }
 }

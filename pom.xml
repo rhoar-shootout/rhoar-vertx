@@ -78,8 +78,8 @@
     <modules>
         <module>adjective</module>
         <module>noun</module>
-        <module>ui</module>
         <module>insult</module>
+        <module>ui</module>
     </modules>
 
     <build>
