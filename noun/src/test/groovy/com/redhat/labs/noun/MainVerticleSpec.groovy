@@ -23,12 +23,12 @@ class MainVerticleSpec extends Specification {
         async.await(10)
     }
 
-    def "Test adjective GET service"() {
+    def "Test noun GET service"() {
         given: "A Vert.x HTTP Client"
             def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8080))
         and: "An instance of AsyncConditions"
             def async = new AsyncConditions(2)
-
+adjective
         when: "An HTTP request is made to the noun service"
             client.getNow("/noun", { res ->
                 async.evaluate {
@@ -45,25 +45,25 @@ class MainVerticleSpec extends Specification {
             async.await(10.0)
     }
 
-    def "Test adjective HEALTH service"() {
+    def "Test noun HEALTH service"() {
         given: "A Vert.x HTTP Client"
-        def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8080))
+            def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8080))
         and: "An instance of AsyncConditions"
-        def async = new AsyncConditions(2)
+            def async = new AsyncConditions(2)
 
         when: "An HTTP request is made to the noun service"
-        client.getNow("/noun", { res ->
-            async.evaluate {
-                res.statusCode() == 200
-                res.bodyHandler({ bodyRes ->
-                    async.evaluate {
-                        bodyRes.toJsonObject().getString("STATUS") == "OK"
-                    }
-                })
-            }
-        })
+            client.getNow("/health", { res ->
+                async.evaluate {
+                    res.statusCode() == 200
+                    res.bodyHandler({ bodyRes ->
+                        async.evaluate {
+                            bodyRes.toJsonObject().getString("STATUS") == "OK"
+                        }
+                    })
+                }
+            })
 
         then: "Expect async conditions to evaluate correctly"
-        async.await(10.0)
+            async.await(10.0)
     }
 }
