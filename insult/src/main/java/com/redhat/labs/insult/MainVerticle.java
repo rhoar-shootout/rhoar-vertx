@@ -2,6 +2,7 @@ package com.redhat.labs.insult;
 
 import com.redhat.labs.insult.services.InsultService;
 import com.redhat.labs.insult.services.InsultServiceImpl;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.config.ConfigRetriever;
@@ -104,9 +105,9 @@ public class MainVerticle extends AbstractVerticle {
      * @return The {@link HttpServer} instance created
      */
     private Future<HttpServer> createHttpServer(OpenAPI3RouterFactory factory) {
-        factory.addHandlerByOperationId("getInsult", this::handleInsult);
+        factory.addHandlerByOperationId("getInsult", ctx -> service.getInsult(result -> handleResponse(ctx, OK, result)));
         factory.addHandlerByOperationId("insultByName", this::handleNamedInsult);
-        factory.addHandlerByOperationId("health", this::healthCheck);
+        factory.addHandlerByOperationId("health", ctx -> service.check(res -> handleResponse(ctx, OK, res)));
         Future<HttpServer> future = Future.future();
         JsonObject httpJsonCfg = vertx
                 .getOrCreateContext()
@@ -125,57 +126,39 @@ public class MainVerticle extends AbstractVerticle {
         return future;
     }
 
+    /**
+     * Handle a request for a named insult
+     * @param ctx The {@link RoutingContext} for the request, from which we will extract the parameters
+     */
     private void handleNamedInsult(RoutingContext ctx) {
         RequestParameters params = ctx.get("parsedParameters");
         RequestParameter bodyParam = params.body();
         JsonObject reqBody = bodyParam.getJsonObject();
         String name = reqBody.getString("name");
         if (name!=null && name.length()>0) {
-            service.namedInsult(name, result -> {
-                if (result.succeeded()) {
-                    ctx.response()
-                        .setStatusMessage(OK.reasonPhrase())
-                        .setStatusCode(OK.code())
-                        .end(result.result().encodePrettily());
-                } else {
-                    ctx.response()
-                        .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
-                        .setStatusCode(INTERNAL_SERVER_ERROR.code())
-                        .end();
-                }
-            });
+            service.namedInsult(name, result -> handleResponse(ctx, CREATED, result));
+        } else {
+            service.getInsult(result -> handleResponse(ctx, CREATED, result));
         }
     }
 
-    private void handleInsult(RoutingContext ctx) {
-        service.getInsult(result -> {
-            if (result.succeeded()) {
-                ctx.response()
-                        .setStatusMessage(OK.reasonPhrase())
-                        .setStatusCode(OK.code())
-                        .end(result.result().encodePrettily());
-            } else {
-                ctx.response()
-                        .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
-                        .setStatusCode(INTERNAL_SERVER_ERROR.code())
-                        .end();
-            }
-        });
-    }
-
-    private void healthCheck(RoutingContext ctx) {
-        service.check(res -> {
-            if (res.succeeded()) {
-                ctx.response()
-                        .setStatusCode(CREATED.code())
-                        .setStatusMessage(CREATED.reasonPhrase())
-                        .end(res.result().encodePrettily());
-            } else {
-                ctx.response()
-                        .setStatusCode(INTERNAL_SERVER_ERROR.code())
-                        .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
-                        .end();
-            }
-        });
+    /**
+     * Handles a Service Proxy response and uses the {@link RoutingContext} to send the response
+     * @param ctx The {@link RoutingContext} of the request we are responding to
+     * @param status The {@link HttpResponseStatus} to be used for the request's successful response
+     * @param res The {@link AsyncResult} which contains a JSON body for the response or an exception
+     */
+    private void handleResponse(RoutingContext ctx, HttpResponseStatus status, AsyncResult<JsonObject> res) {
+        if (res.succeeded()) {
+            ctx.response()
+                    .setStatusCode(status.code())
+                    .setStatusMessage(status.reasonPhrase())
+                    .end(res.result().encodePrettily());
+        } else {
+            ctx.response()
+                    .setStatusCode(INTERNAL_SERVER_ERROR.code())
+                    .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
+                    .end();
+        }
     }
 }

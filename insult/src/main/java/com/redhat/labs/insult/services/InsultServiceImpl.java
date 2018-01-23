@@ -21,6 +21,10 @@ public class InsultServiceImpl implements InsultService {
     private CircuitBreaker nounBreaker;
     private CircuitBreaker adjBreaker;
 
+    /**
+     * Default constructor. Sets up the circuit breakers and other requirements for this Insult service
+     * @param vertx The {@link Vertx} instance
+     */
     public InsultServiceImpl(Vertx vertx) {
         this.vertx = vertx;
         client = vertx.createHttpClient();
@@ -37,11 +41,21 @@ public class InsultServiceImpl implements InsultService {
                 .fallback(t -> "[adjective fallback]");
     }
 
+    /**
+     * Retrieve an insult result JSON
+     * @param resultHandler The {@link Handler} to be called with the results of the request.
+     */
     @Override
     public void getInsult(Handler<AsyncResult<JsonObject>> resultHandler) {
         namedInsult(null, resultHandler);
     }
 
+    /**
+     * A method for making a REST API call against the other microservices
+     * @param cfg The {@link JsonObject} for configuring the Async HTTP Client
+     * @param path The path for the request
+     * @param f A {@link Future} which will be used to handle the results
+     */
     private void makeRestCall(JsonObject cfg, String path, Future<String> f) {
         System.out.println("Executing GET: "+path);
         client.getNow(cfg.getInteger("port"), cfg.getString("host"), path, r -> {
@@ -64,6 +78,11 @@ public class InsultServiceImpl implements InsultService {
         });
     }
 
+    /**
+     * A service method to generating an insult for a specific name
+     * @param name The name to direct the insult at
+     * @param resultHandler The {@link Handler} to be used to call back to the calling Verticle
+     */
     @Override
     public void namedInsult(String name, Handler<AsyncResult<JsonObject>> resultHandler) {
 
@@ -88,6 +107,10 @@ public class InsultServiceImpl implements InsultService {
         });
     }
 
+    /**
+     * A service method or health check
+     * @param handler The {@link Handler} to be used to call back to the calling Verticle
+     */
     public void check(Handler<AsyncResult<JsonObject>> handler) {
         boolean allBreakersClosed = (
                 (nounBreaker.state().equals(CircuitBreakerState.CLOSED)) &&
