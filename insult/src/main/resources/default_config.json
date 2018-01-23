@@ -13,8 +13,8 @@
   },
   "breakers": {
     "maxFailures" : 5,
-    "timeout" : 2000,
+    "timeout" : 200,
     "fallbackOnFailure" : false,
-    "resetTimeout" : 20000
+    "resetTimeout" : 10000
   }
 }

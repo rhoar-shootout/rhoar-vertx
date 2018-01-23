@@ -92,7 +92,7 @@ public class MainVerticle extends AbstractVerticle {
                 .setResetTimeout(1000000));
         breaker.<OpenAPI3RouterFactory>execute(f -> OpenAPI3RouterFactory.createRouterFactoryFromFile(
                 vertx,
-                getClass().getResource("/insult.yaml").getFile(),
+                "./src/main/resources/insult.yaml",
                 f.completer())).setHandler(future.completer());
         return future;
     }
