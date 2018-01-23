@@ -19,9 +19,9 @@ public interface NounService {
         return new NounServiceVertxEBProxy(vertx, address);
     }
 
-    void save(String noun, Handler<AsyncResult<JsonObject>> handler);
+    void save(String noun, Handler<AsyncResult<String>> handler);
 
-    void get(Handler<AsyncResult<JsonObject>> handler);
+    void get(Handler<AsyncResult<String>> handler);
 
-    void check(Handler<AsyncResult<JsonObject>> handler);
+    void check(Handler<AsyncResult<String>> handler);
 }
