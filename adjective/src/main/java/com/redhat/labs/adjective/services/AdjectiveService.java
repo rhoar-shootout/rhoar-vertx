@@ -19,9 +19,9 @@ public interface AdjectiveService {
         return new AdjectiveServiceVertxEBProxy(vertx, address);
     }
 
-    void save(String adjective, Handler<AsyncResult<JsonObject>> handler);
+    void save(String adjective, Handler<AsyncResult<String>> handler);
 
-    void get(Handler<AsyncResult<JsonObject>> handler);
+    void get(Handler<AsyncResult<String>> handler);
 
-    void check(Handler<AsyncResult<JsonObject>> handler);
+    void check(Handler<AsyncResult<String>> handler);
 }

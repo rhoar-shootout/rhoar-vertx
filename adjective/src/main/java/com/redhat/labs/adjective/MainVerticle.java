@@ -2,6 +2,7 @@ package com.redhat.labs.adjective;
 
 import com.redhat.labs.adjective.services.AdjectiveService;
 import com.redhat.labs.adjective.services.AdjectiveServiceImpl;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.config.ConfigRetriever;
@@ -16,6 +17,8 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.api.RequestParameter;
+import io.vertx.ext.web.api.RequestParameters;
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory;
 import io.vertx.serviceproxy.ServiceBinder;
 import liquibase.Contexts;
@@ -148,9 +151,9 @@ public class MainVerticle extends AbstractVerticle {
      * @return The {@link HttpServer} instance created
      */
     private Future<HttpServer> createHttpServer(OpenAPI3RouterFactory factory) {
-        factory.addHandlerByOperationId("getAdjective", this::handleAdjGet);
+        factory.addHandlerByOperationId("getAdjective", ctx -> service.get(res -> handleResponse(ctx, OK, res)));
         factory.addHandlerByOperationId("addAdjective", this::handleAdjPost);
-        factory.addHandlerByOperationId("health", this::healthCheck);
+        factory.addHandlerByOperationId("health", ctx -> service.check(res -> handleResponse(ctx, OK, res)));
         Future<HttpServer> future = Future.future();
         JsonObject httpJsonCfg = vertx
                 .getOrCreateContext()
@@ -163,51 +166,32 @@ public class MainVerticle extends AbstractVerticle {
         return future;
     }
 
-    private void healthCheck(RoutingContext ctx) {
-        service.check(res -> {
-            if (res.succeeded()) {
-                ctx.response()
-                        .setStatusCode(CREATED.code())
-                        .setStatusMessage(CREATED.reasonPhrase())
-                        .end(res.result().encodePrettily());
-            } else {
-                ctx.response()
-                        .setStatusCode(INTERNAL_SERVER_ERROR.code())
-                        .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
-                        .end();
-            }
-        });
-    }
-
     private void handleAdjPost(RoutingContext ctx) {
-        service.get(res -> {
-            if (res.succeeded()) {
-                ctx.response()
-                        .setStatusCode(CREATED.code())
-                        .setStatusMessage(CREATED.reasonPhrase())
-                        .end();
-            } else {
-                ctx.response()
-                        .setStatusCode(INTERNAL_SERVER_ERROR.code())
-                        .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
-                        .end();
-            }
-        });
+        RequestParameters params = ctx.get("parsedParameters");
+        RequestParameter bodyParam = params.body();
+        JsonObject data = bodyParam.getJsonObject();
+        service.save(data.getString("adjective"),
+            res -> handleResponse(ctx, CREATED, res)
+        );
     }
 
-    private void handleAdjGet(RoutingContext ctx) {
-        service.get(res -> {
-            if (res.succeeded()) {
-                ctx.response()
-                        .setStatusCode(OK.code())
-                        .setStatusMessage(OK.reasonPhrase())
-                        .end(res.result().encodePrettily());
-            } else {
-                ctx.response()
-                        .setStatusCode(INTERNAL_SERVER_ERROR.code())
-                        .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
-                        .end();
-            }
-        });
+    /**
+     * Handles a Service Proxy response and uses the {@link RoutingContext} to send the response
+     * @param ctx The {@link RoutingContext} of the request we are responding to
+     * @param status The {@link HttpResponseStatus} to be used for the request's successful response
+     * @param res The {@link AsyncResult} which contains a JSON body for the response or an exception
+     */
+    private void handleResponse(RoutingContext ctx, HttpResponseStatus status, AsyncResult<String> res) {
+        if (res.succeeded()) {
+            ctx.response()
+                    .setStatusCode(status.code())
+                    .setStatusMessage(status.reasonPhrase())
+                    .end(res.result());
+        } else {
+            ctx.response()
+                    .setStatusCode(INTERNAL_SERVER_ERROR.code())
+                    .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
+                    .end();
+        }
     }
 }
