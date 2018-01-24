@@ -133,8 +133,28 @@
                         <useFile>false</useFile>
                         <includes>
                             <include>**/*Spec.groovy</include>
+                            <include>**/*Spec.java</include>
                         </includes>
                     </configuration>
+                    <executions>
+                        <execution>
+                            <id>integration-test</id>
+                            <phase>integration-test</phase>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                            <configuration>
+                                <includes>
+                                    <include>**/*SpecIT.groovy</include>
+                                    <include>**/*SpecIT.java</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>**/Spec.groovy</exclude>
+                                    <exclude>**/Spec.java</exclude>
+                                </excludes>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
