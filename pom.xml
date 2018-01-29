@@ -13,7 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <vertx.version>3.5.0</vertx.version>
+        <vertx.version>3.5.1-SNAPSHOT</vertx.version>
         <fabric8-vertx-maven-plugin.version>1.0.13</fabric8-vertx-maven-plugin.version>
     </properties>
 
@@ -180,11 +180,6 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>1.6.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>io.fabric8</groupId>
-                    <artifactId>vertx-maven-plugin</artifactId>
-                    <version>1.0.13</version>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -7,8 +7,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
-@VertxGen
 @ProxyGen
+@VertxGen
 public interface InsultService {
 
     static InsultService create(Vertx vertx) {

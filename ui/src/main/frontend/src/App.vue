@@ -1,28 +1,29 @@
 <template>
-  <div id="app">
-    <img src="./assets/logo.png">
-    <ElizabethanInsult/>
+  <div id="q-app">
+    <header></header>
+    <main>
+      <img src="~assets/logo.png" alt="Red Hat OpenShift Application Runtimes - Insult UI" />
+      <router-view></router-view>
+    </main>
   </div>
 </template>
 
 <script>
-import ElizabethanInsult from './components/ElizabethanInsult'
-
-export default {
-  name: 'app',
-  components: {
-      ElizabethanInsult
-  }
-}
+/*
+ * Root component
+ */
+export default {}
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style lang="stylus">
+@import '~variables'
+
+main
+  text-align center
+  margin-top 40px
+
+header
+  margin 0
+  height 10px
+  background-color $primary
 </style>
