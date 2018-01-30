@@ -91,9 +91,9 @@ public class MainVerticle extends AbstractVerticle {
                 .setTimeout(200000) // consider a failure if the operation does not succeed in time
                 .setFallbackOnFailure(false) // do we call the fallback on failure
                 .setResetTimeout(1000000));
-        breaker.<OpenAPI3RouterFactory>execute(f -> OpenAPI3RouterFactory.createRouterFactoryFromFile(
+        breaker.<OpenAPI3RouterFactory>execute(f -> OpenAPI3RouterFactory.create(
                 vertx,
-                "./insult.yaml",
+                "/insult.yaml",
                 f.completer())).setHandler(future.completer());
         return future;
     }
