@@ -13,9 +13,7 @@ require(`quasar/dist/quasar.${__THEME}.css`);
 import Vue from 'vue'
 import Quasar from 'quasar'
 import router from './router'
-import VertxEventBus from 'vue-vertx3-eventbus-client'
 
-Vue.use(VertxEventBus, { path: '/eventbus', port: window.insult_service_port, host: window.insult_service_address });
 Vue.config.productionTip = false;
 Vue.use(Quasar); // Install Quasar Framework
 
