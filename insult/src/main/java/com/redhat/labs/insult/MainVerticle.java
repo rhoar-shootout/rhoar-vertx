@@ -53,8 +53,8 @@ public class MainVerticle extends AbstractVerticle {
     }
 
     /**
-     * Initialize the {@link ConfigRetriever}
-     * @param handler Handles the results of requesting the configuration
+     * Initialize the {@link ConfigRetriever} and return a {@link Future}
+     *      * @return A {@link Future} which resolves with the loaded configuration as a {@link JsonObject}
      */
     private Future<JsonObject> initConfigRetriever() {
         Future<JsonObject> configFuture = Future.future();
