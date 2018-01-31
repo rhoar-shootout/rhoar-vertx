@@ -10,46 +10,84 @@
 </template>
 
 <script>
-import { QBtn, QToggle } from 'quasar'
-import InsultService from 'assets/js/insult_service.js'
+import { QBtn, QToggle, QInput } from 'quasar'
+import InsultService from 'assets/js/insult_service-proxy.js'
+import EventBus from 'vertx3-eventbus-client'
+import axios from 'axios'
 
 export default {
   name: 'insult',
   components: {
     QBtn,
-    QToggle
+    QToggle,
+    QInput
   },
   data() {
     return {
+        nameInput: "",
         isReactiveEnabled: false,
         eventBus: {},
-        service: {}
+        service: {},
+        rest: {},
+        baseURL: "",
+        insults: []
     }
   },
   methods: {
-    toggleServiceProxies() {
-        this.isReactiveEnabled = !this.isReactiveEnabled;
-    },
     getInsult() {
+      var formatter = (res) => {
+          var data = JSON.parse(res);
+          var insult = "";
+          if (data.subject===null) {
+              insult = "Thou "+data.adj1+", "+data.adj2+", "+data.noun;
+          } else {
+              insult = data.subject+"; thou dost be a "+data.adj1+", "+data.adj2+", "+data.noun;
+          }
+          return insult;
+      };
       if (this.isReactiveEnabled) {
-
+          var resultHandler = (res, err) => {
+              if (err===null) {
+                  this.insults.push(formatter(res));
+              } else {
+                  console.log(err);
+              }
+          };
+          if (nameInput==="") {
+              service.getInsult(resultHandler);
+          } else {
+              service.namedInsult(this.nameInput, resultHandler);
+          }
       } else {
-
+          var reqPromise = {};
+          if (nameInput==="") {
+              reqPromise = this.rest.get("/insult");
+          } else {
+              reqPromise = this.rest.post("/insult", { name: this.nameInput });
+          }
+          reqPromise
+              .then((resp) => {
+                  this.insults.push(formatter(resp.data));
+              })
+              .catch((err) => {
+                  console.log(err);
+              });
       }
-    },
-    postInsult() {
-      if (this.isReactiveEnabled) {
-
-      } else {
-
-      }
-    },
-    created: function () {
-
-    },
-    destroyed: function () {
-
     }
+  },
+  created: function () {
+    this.baseURL = window.base_url===""?"http://localhost:8080":window.base_url;
+    this.eventBus = new EventBus(this.baseURL+"/eventbus");
+    this.eventBus.onopen = () => {
+        this.service = new InsultService(eb, "insult.service");
+    };
+    this.rest = axios.create({
+        baseURL: this.baseURL,
+        timeout: 1000
+    });
+  },
+  destroyed: function () {
+    this.eventBus.close();
   }
 }
 </script>
