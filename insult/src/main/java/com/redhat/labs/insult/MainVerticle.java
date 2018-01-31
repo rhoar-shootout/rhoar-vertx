@@ -112,14 +112,6 @@ public class MainVerticle extends AbstractVerticle {
      */
     private Future<HttpServer> createHttpServer(OpenAPI3RouterFactory factory) {
         Router baseRouter = Router.router(vertx);
-        baseRouter.route().handler(ctx -> {
-            JsonObject headers = new JsonObject();
-            for (Map.Entry<String, String> e : ctx.request().headers().entries()) {
-                headers.put(e.getKey(), e.getValue());
-            }
-            System.out.println(headers.encodePrettily());
-            ctx.next();
-        });
         CorsHandler corsHandler = CorsHandler.create("https?://(localhost|127\\.0\\.0\\.1|.*\\.redhat\\.com)(:[0-9]*)?(/.*)?")
                 .allowCredentials(true)
                 .allowedHeader("Content-Type")
