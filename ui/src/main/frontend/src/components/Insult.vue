@@ -12,7 +12,7 @@
     </div>
     <div class="row">
       <div class="col-12" style="padding-top: 20px">
-        <q-toggle v-model="isReactiveEnabled">&nbsp;Use WebSockets</q-toggle>
+        <q-toggle color="red" v-model="isReactiveEnabled">&nbsp;Use WebSockets</q-toggle>
       </div>
     </div>
   </div>
@@ -68,9 +68,9 @@ export default {
           }
           var insult = "";
           if (data.hasOwnProperty("subject") && data.subject.length > 0) {
-              insult = data.subject+"; thou dost be a "+data.adj1+", "+data.adj2+", "+data.noun;
+              insult = data.subject+"; thou dost be a "+data.adj1+", "+data.adj2+", "+data.noun+"!";
           } else {
-              insult = "Thou "+data.adj1+", "+data.adj2+", "+data.noun;
+              insult = "Thou "+data.adj1+", "+data.adj2+", "+data.noun+"!";
           }
           return insult;
       };
