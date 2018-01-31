@@ -46,8 +46,8 @@ public class MainVerticle extends AbstractVerticle {
     public void start(final Future<Void> startFuture) {
         // ConfigStore from Kube/OCPs
         Future<JsonObject> f1 = Future.future();
-        this.initConfigRetriever(f1.completer());
-        f1.compose(this::provisionRouter)
+        this.initConfigRetriever()
+            .compose(this::provisionRouter)
             .compose(this::createHttpServer)
             .compose(s -> startFuture.complete(), startFuture);
     }
@@ -56,7 +56,8 @@ public class MainVerticle extends AbstractVerticle {
      * Initialize the {@link ConfigRetriever}
      * @param handler Handles the results of requesting the configuration
      */
-    private void initConfigRetriever(Handler<AsyncResult<JsonObject>> handler) {
+    private Future<JsonObject> initConfigRetriever() {
+        Future<JsonObject> configFuture = Future.future();
         ConfigStoreOptions defaultOpts = new ConfigStoreOptions()
                 .setType("file")
                 .setFormat("json")
@@ -79,7 +80,8 @@ public class MainVerticle extends AbstractVerticle {
 
         ConfigRetriever
                 .create(vertx, retrieverOptions)
-                .getConfig(handler);
+                .getConfig(configFuture.completer());
+        return configFuture;
     }
 
     /**
