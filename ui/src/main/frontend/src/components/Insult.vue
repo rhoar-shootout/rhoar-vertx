@@ -3,7 +3,7 @@
     <div class="row inline justify-center items-start">
       <div class="col-6" style="padding-right: 4px;">
         <q-input v-model="nameInput" type="text" placeholder="Target"></q-input>
-        <q-btn outline color="red" @click="getInsult">Insult Me!</q-btn>
+        <q-btn outline color="red" @click="getInsult">Insult {{target}}!</q-btn>
         <q-btn outline color="green" @click="clearHistory">I Didn't Mean It!</q-btn>
       </div>
       <div class="col-6" style="padding-left: 4px;">
@@ -12,7 +12,7 @@
     </div>
     <div class="row">
       <div class="col-12" style="padding-top: 20px">
-        <q-toggle v-model="isReactiveEnabled">Reactive</q-toggle>
+        <q-toggle v-model="isReactiveEnabled">&nbsp;Use WebSockets</q-toggle>
       </div>
     </div>
   </div>
@@ -45,6 +45,13 @@ export default {
   computed: {
       displayInsults() {
           return this.insults.join("\n");
+      },
+      target() {
+          if (this.nameInput.length == 0) {
+              return "ME";
+          } else {
+              return this.nameInput;
+          }
       }
   },
   methods: {
@@ -53,23 +60,25 @@ export default {
     },
     getInsult() {
       var formatter = (res) => {
-          var data = JSON.parse(res);
-          var insult = "";
-          if (data.subject===null) {
-              insult = "Thou "+data.adj1+", "+data.adj2+", "+data.noun;
+          var data = {};
+          if (typeof res === "string") {
+              data = JSON.parse(res);
           } else {
-              insult = data.subject+"; thou dost be a "+data.adj1+", "+data.adj2+", "+data.noun;
+              data = res;
           }
-          console.log("Insult formatted: "+insult);
+          var insult = "";
+          if (data.hasOwnProperty("subject") && data.subject.length > 0) {
+              insult = data.subject+"; thou dost be a "+data.adj1+", "+data.adj2+", "+data.noun;
+          } else {
+              insult = "Thou "+data.adj1+", "+data.adj2+", "+data.noun;
+          }
           return insult;
       };
       if (this.isReactiveEnabled) {
           var resultHandler = (err, res) => {
-              console.log("Error: " + JSON.stringify(err));
-              console.log("Result: " + JSON.stringify(res));
               if (err===null) {
                   if (this.insults.length == 10) {
-                      this.insults.pop();
+                      this.insults.shift();
                   }
                   this.insults.push(formatter(JSON.stringify(res)));
               } else {
@@ -84,14 +93,14 @@ export default {
       } else {
           var reqPromise = {};
           if (this.nameInput==="" || this.nameInput === null) {
-              reqPromise = this.rest.get("/insult");
+              reqPromise = this.rest.get("/api/v1/insult");
           } else {
-              reqPromise = this.rest.post("/insult", { name: this.nameInput });
+              reqPromise = this.rest.post("/api/v1/insult", { name: this.nameInput });
           }
           reqPromise
               .then((resp) => {
                   if (this.insults.length == 10) {
-                      this.insults.pop();
+                      this.insults.shift();
                   }
                   this.insults.push(formatter(resp.data));
               })

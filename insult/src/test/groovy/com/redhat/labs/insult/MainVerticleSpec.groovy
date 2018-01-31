@@ -6,6 +6,7 @@ import io.vertx.core.DeploymentOptions
 import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClientRequest
+import io.vertx.core.http.RequestOptions
 import io.vertx.core.json.JsonObject
 import org.spockframework.lang.ISpecificationContext
 import spock.lang.Shared
@@ -71,7 +72,7 @@ class MainVerticleSpec extends Specification {
                             .setStatusCode(OK.code())
                             .setStatusMessage(OK.reasonPhrase())
                             .end(response)
-                }).listen(8081, "0.0.0.0", startFuture.completer())
+                }).listen(8083, "0.0.0.0", startFuture.completer())
             }
         }, { res2 ->
             async.evaluate {
@@ -95,10 +96,14 @@ class MainVerticleSpec extends Specification {
             def client = vertx.createHttpClient()
         and: "An instance of AsyncConditions"
             AsyncConditions async = new AsyncConditions(2)
+        and: "A request with the correct headers"
+            def req = client.get(8080, "localhost", "/api/v1/insult")
+            req.putHeader("Origin", "http://localhost:8081")
         when: "An insult is requested"
-            client.getNow(8080, "localhost", "/insult", { res ->
+            req.handler({ res ->
                 async.evaluate {
                     res.statusCode() == 200
+                    res.getHeader("Access-Control-Allow-Origin").startsWith("http://localhost:8081")
                     res.bodyHandler({  b ->
                         async.evaluate {
                             def body = b.toJsonObject()
@@ -112,7 +117,7 @@ class MainVerticleSpec extends Specification {
                         }
                     })
                 }
-            })
+            }).end()
         then: "Ensure all async conditions evaluated correctly"
             async.await(20)
     }
@@ -124,11 +129,16 @@ class MainVerticleSpec extends Specification {
             AsyncConditions async = new AsyncConditions(2)
         and: "A POST body of JSON"
             def body = new JsonObject(['name': 'Deven'])
+        and: "A request with the correct headers"
+            def req = client.post(8080, "localhost", "/api/v1/insult")
+            req.putHeader("Origin", "http://localhost:8081")
+            req.putHeader("Content-Type", "application/json")
+            req.putHeader("Content-Length", "${body.encodePrettily().getBytes("UTF-8").length}")
         when: "An insult is requested"
-            HttpClientRequest req = client.post(8080, "localhost", "/insult")
             req.handler({ res ->
                 async.evaluate {
                     res.statusCode() == 201
+                    res.getHeader("Access-Control-Allow-Origin").startsWith("http://localhost:8081")
                     res.bodyHandler({ b ->
                         async.evaluate {
                             def responseBody = b.toJsonObject()
@@ -142,10 +152,7 @@ class MainVerticleSpec extends Specification {
                         }
                     })
                 }
-            })
-            req.putHeader("Content-Type", "application/json")
-            req.putHeader("Content-Length", "${body.encodePrettily().getBytes("UTF-8").length}")
-            req.write(body.encodePrettily())
+            }).end(body.encodePrettily())
         then: "Ensure all async conditions evaluated correctly"
             async.await(20)
     }

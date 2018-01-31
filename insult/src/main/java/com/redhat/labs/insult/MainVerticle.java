@@ -27,6 +27,7 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.serviceproxy.ServiceBinder;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.vertx.core.http.HttpMethod.CONNECT;
@@ -110,6 +111,22 @@ public class MainVerticle extends AbstractVerticle {
      * @return The {@link HttpServer} instance created
      */
     private Future<HttpServer> createHttpServer(OpenAPI3RouterFactory factory) {
+        Router baseRouter = Router.router(vertx);
+        baseRouter.route().handler(ctx -> {
+            JsonObject headers = new JsonObject();
+            for (Map.Entry<String, String> e : ctx.request().headers().entries()) {
+                headers.put(e.getKey(), e.getValue());
+            }
+            System.out.println(headers.encodePrettily());
+            ctx.next();
+        });
+        CorsHandler corsHandler = CorsHandler.create("https?://(localhost|127\\.0\\.0\\.1|.*\\.redhat\\.com)(:[0-9]*)?(/.*)?")
+                .allowCredentials(true)
+                .allowedHeader("Content-Type")
+                .allowedMethod(GET)
+                .allowedMethod(POST)
+                .allowedMethod(CONNECT);
+        baseRouter.route().handler(corsHandler);
         factory.addHandlerByOperationId("getInsult", ctx -> service.getInsult(result -> handleResponse(ctx, OK, result)));
         factory.addHandlerByOperationId("insultByName", this::handleNamedInsult);
         factory.addHandlerByOperationId("health", ctx -> service.check(res -> handleResponse(ctx, OK, res)));
@@ -120,25 +137,14 @@ public class MainVerticle extends AbstractVerticle {
                 .getJsonObject("http");
         HttpServerOptions httpConfig = new HttpServerOptions(httpJsonCfg);
         Router router = factory.getRouter();
-        CorsHandler corsHandler = CorsHandler.create("https?://localhost(:[0-9]*)?|127\\.0\\.0\\.1|.*\\.redhat\\.com")
-                                        .allowCredentials(true)
-                                        .allowedHeader("Content-Type")
-                                        .allowedMethod(GET)
-                                        .allowedMethod(POST)
-                                        .allowedMethod(CONNECT);
-        router.route().handler(corsHandler);
-        router.route().handler(ctx -> {
-            // TODO: Remove Debugging
-            System.out.println("Request Path: "+ctx.request().path());
-            ctx.next();
-        });
         BridgeOptions bOpts = new BridgeOptions();
         bOpts.setInboundPermitted(Arrays.asList(new PermittedOptions().setAddress("insult.service")));
         bOpts.setOutboundPermitted(Arrays.asList(new PermittedOptions().setAddress("insult.service")));
         SockJSHandler sockHandler = SockJSHandler.create(vertx).bridge(bOpts);
-        router.route("/eventbus/*").handler(sockHandler);
+        baseRouter.route("/eventbus/*").handler(sockHandler);
+        baseRouter.mountSubRouter("/api/v1", router);
         vertx.createHttpServer(httpConfig)
-                .requestHandler(router::accept)
+                .requestHandler(baseRouter::accept)
                 .listen(future.completer());
         return future;
     }

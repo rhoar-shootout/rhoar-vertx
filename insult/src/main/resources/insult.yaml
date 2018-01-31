@@ -5,7 +5,7 @@ info:
   description: 'API for Elizabethan Insult Generator Microservices'
 # Added by API Auto Mocking Plugin
 servers:
-  - url: http://localhost:8080/
+  - url: http://localhost:8080/api/v1
 tags:
   - name: insult
     description: An Elizabethan derrogatory insult
@@ -18,6 +18,11 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            Access-Control-Allow-Origin:
+              description: 'Cross-Origin Request Security Headers'
+              schema:
+                type: string
           content:
             application/json:
               schema:
