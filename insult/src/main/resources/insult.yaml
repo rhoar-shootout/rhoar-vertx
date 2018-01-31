@@ -5,8 +5,7 @@ info:
   description: 'API for Elizabethan Insult Generator Microservices'
 # Added by API Auto Mocking Plugin
 servers:
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/InfoSec812/Insult/1
+  - url: http://localhost:8080/
 tags:
   - name: insult
     description: An Elizabethan derrogatory insult

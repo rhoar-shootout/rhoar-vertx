@@ -9,6 +9,7 @@ import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.*;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
@@ -19,6 +20,7 @@ import io.vertx.ext.web.api.RequestParameter;
 import io.vertx.ext.web.api.RequestParameters;
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory;
 
+import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
@@ -27,6 +29,9 @@ import io.vertx.serviceproxy.ServiceBinder;
 import java.util.Arrays;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
+import static io.vertx.core.http.HttpMethod.CONNECT;
+import static io.vertx.core.http.HttpMethod.GET;
+import static io.vertx.core.http.HttpMethod.POST;
 
 public class MainVerticle extends AbstractVerticle {
 
@@ -115,11 +120,23 @@ public class MainVerticle extends AbstractVerticle {
                 .getJsonObject("http");
         HttpServerOptions httpConfig = new HttpServerOptions(httpJsonCfg);
         Router router = factory.getRouter();
+        CorsHandler corsHandler = CorsHandler.create("https?://localhost(:[0-9]*)?|127\\.0\\.0\\.1|.*\\.redhat\\.com")
+                                        .allowCredentials(true)
+                                        .allowedHeader(".*")
+                                        .allowedMethod(GET)
+                                        .allowedMethod(POST)
+                                        .allowedMethod(CONNECT);
+        router.route().handler(corsHandler);
+        router.route().handler(ctx -> {
+            // TODO: Remove Debugging
+            System.out.println("Request Path: "+ctx.request().path());
+            ctx.next();
+        });
         BridgeOptions bOpts = new BridgeOptions();
         bOpts.setInboundPermitted(Arrays.asList(new PermittedOptions().setAddress("insult.service")));
         bOpts.setOutboundPermitted(Arrays.asList(new PermittedOptions().setAddress("insult.service")));
         SockJSHandler sockHandler = SockJSHandler.create(vertx).bridge(bOpts);
-        router.route("/eventbus").handler(sockHandler);
+        router.route("/eventbus/*").handler(sockHandler);
         vertx.createHttpServer(httpConfig)
                 .requestHandler(router::accept)
                 .listen(future.completer());
