@@ -123,7 +123,6 @@ public class MainVerticle extends AbstractVerticle {
         CorsHandler corsHandler = CorsHandler.create("https?://localhost(:[0-9]*)?|127\\.0\\.0\\.1|.*\\.redhat\\.com")
                                         .allowCredentials(true)
                                         .allowedHeader("Content-Type")
-                                        .allowedHeader("")
                                         .allowedMethod(GET)
                                         .allowedMethod(POST)
                                         .allowedMethod(CONNECT);
