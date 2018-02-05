@@ -35,7 +35,7 @@ node (''){
  this section of the pipeline executes on a custom mvn build slave.
  you should not need to change anything below unless you need new stages or new integrations (e.g. Cucumber Reports or Sonar)
  **/
-node("mvn-build-pod") {
+node("jenkins-slave-maven") {
 
     stage('SCM Checkout') {
         checkout scm
@@ -52,33 +52,33 @@ node("mvn-build-pod") {
 
         modules.each {
             // assumes uber jar is created
-            stage('Build ${it} Image') {
-                sh "oc start-build ${it} --from-file=${it}/target/${it}-${pom.version}.jar"
+            stage('Build ${it}-app Image') {
+                sh "oc start-build ${it}-app --from-file=${it}-app/target/${it}-app-${pom.version}.jar"
             }
         }
     }
 
     modules.each {
         // no user changes should be needed below this point
-        stage ('Deploy ${it} to Dev') {
-            openshiftTag (apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "${it}", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEV_PROJECT}", namespace: "${env.OPENSHIFT_BUILD_NAMESPACE}", srcStream: "${it}", srcTag: 'latest')
+        stage ('Deploy ${it}-app to Dev') {
+            openshiftTag (apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "${it}-app", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEV_PROJECT}", namespace: "${env.OPENSHIFT_BUILD_NAMESPACE}", srcStream: "${it}-app", srcTag: 'latest')
 
-            openshiftVerifyDeployment (apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "${it}", namespace: "${env.DEV_PROJECT}", verifyReplicaCount: true)
+            openshiftVerifyDeployment (apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "${it}-app", namespace: "${env.DEV_PROJECT}", verifyReplicaCount: true)
         }
     }
 
     modules.each {
-        stage('Deploy ${it} to Demo') {
+        stage('Deploy ${it}-app to Demo') {
             input "Promote Application to Demo?"
 
-            openshiftTag(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "${it}", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEMO_PROJECT}", namespace: "${env.DEV_PROJECT}", srcStream: "${it}", srcTag: 'latest')
+            openshiftTag(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "${it}-app", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEMO_PROJECT}", namespace: "${env.DEV_PROJECT}", srcStream: "${it}-app", srcTag: 'latest')
 
-            openshiftVerifyDeployment(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "${it}", namespace: "${env.DEMO_PROJECT}", verifyReplicaCount: true)
+            openshiftVerifyDeployment(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "${it}-app", namespace: "${env.DEMO_PROJECT}", verifyReplicaCount: true)
         }
     }
 }
 
-node("npm-build-pod") {
+node("jenkins-slave-npm") {
     stage('SCM Checkout') {
         checkout scm
     }
@@ -89,5 +89,20 @@ node("npm-build-pod") {
             sh "npm run build"
             sh "oc start-build insult-ui --from-dir=dist/ --follow"
         }
+    }
+
+    // no user changes should be needed below this point
+    stage ('Deploy UI to Dev') {
+        openshiftTag (apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "insult-ui", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEV_PROJECT}", namespace: "${env.OPENSHIFT_BUILD_NAMESPACE}", srcStream: "insult-ui", srcTag: 'latest')
+
+        openshiftVerifyDeployment (apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "insult-ui", namespace: "${env.DEV_PROJECT}", verifyReplicaCount: true)
+    }
+
+    stage('Deploy UI to Demo') {
+        input "Promote Application to Demo?"
+
+        openshiftTag(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "insult-ui", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEMO_PROJECT}", namespace: "${env.DEV_PROJECT}", srcStream: "insult-ui", srcTag: 'latest')
+
+        openshiftVerifyDeployment(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "insult-ui", namespace: "${env.DEMO_PROJECT}", verifyReplicaCount: true)
     }
 }
