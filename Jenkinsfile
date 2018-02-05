@@ -35,7 +35,7 @@ node (''){
  this section of the pipeline executes on a custom mvn build slave.
  you should not need to change anything below unless you need new stages or new integrations (e.g. Cucumber Reports or Sonar)
  **/
-node("jenkins-slave-maven") {
+node("jenkins-slave-mvn") {
 
     stage('SCM Checkout') {
         checkout scm
