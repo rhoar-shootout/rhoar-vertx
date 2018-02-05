@@ -19,7 +19,7 @@
     <repositories>
         <repository>
             <id>snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+                <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
             <layout>default</layout>
             <snapshots>
                 <enabled>true</enabled>
@@ -190,11 +190,6 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>1.6.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>io.fabric8</groupId>
-                    <artifactId>vertx-maven-plugin</artifactId>
-                    <version>1.0.13</version>
                 </plugin>
                 <plugin>
                     <groupId>com.mycila</groupId>
