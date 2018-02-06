@@ -22,7 +22,7 @@ node (''){
 
     // the complete build command
     // depending on the slave, you may need to wrap this command with scl enable
-    env.BUILD_COMMAND = "mvn clean package dependency:check sonar:sonar vertx:package"
+    env.BUILD_COMMAND = "mvn clean package dependency-check:check sonar:sonar vertx:package"
 
     // these are defaults that will help run openshift automation
     // DO NOT DELETE THESE - they are required
