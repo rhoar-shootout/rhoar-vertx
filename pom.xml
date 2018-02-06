@@ -85,6 +85,11 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>3.1.1</version>
+                </plugin>
+                <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>vertx-maven-plugin</artifactId>
                     <version>${fabric8-vertx-maven-plugin.version}</version>
