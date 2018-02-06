@@ -16,17 +16,6 @@
         <fabric8-vertx-maven-plugin.version>1.0.13</fabric8-vertx-maven-plugin.version>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>snapshots</id>
-                <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <dependencyManagement>
         <dependencies>
             <dependency>

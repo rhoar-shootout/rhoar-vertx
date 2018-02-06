@@ -13,4 +13,48 @@
       <password>admin123</password>
     </server>
   </servers>
+  <profiles>
+    <profile>
+      <id>minishift</id>
+      <properties>
+        <altSnapshotDeploymentRepository>nexus::default::http://nexus:8081/repository/maven-public/</altSnapshotDeploymentRepository>
+        <altReleaseDeploymentRepository>nexus::default::http://nexus:8081/repository/maven-public/</altReleaseDeploymentRepository>
+      </properties>
+      <repositories>
+        <repository>
+          <id>nexus</id>
+          <name>Nexus Releases</name>
+          <layout>default</layout>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+            <checksumPolicy>warn</checksumPolicy>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+            <checksumPolicy>warn</checksumPolicy>
+          </snapshots>
+          <url>http://nexus:8081/repository/maven-public/</url>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>nexus</id>
+          <url>http://nexus:8081/repository/maven-public/</url>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>minishift</activeProfile>
+  </activeProfiles>
 </settings>
