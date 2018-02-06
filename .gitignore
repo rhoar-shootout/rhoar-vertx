@@ -12,3 +12,4 @@
 ui/src/main/frontend/node
 ui/src/main/frontend/node/**
 nb-configuration.xml
+**/vertx-start-process.id
