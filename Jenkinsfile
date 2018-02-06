@@ -47,7 +47,9 @@ node("jenkins-slave-mvn") {
     dir ("${env.SOURCE_CONTEXT_DIR}") {
 
         stage('Build backend services') {
-            sh "${env.BUILD_COMMAND}"
+            withSonarQubeEnv {
+                sh "${env.BUILD_COMMAND}"
+            }
         }
 
         modules.each {
