@@ -13,7 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <vertx.version>3.5.0</vertx.version>
+        <vertx.version>3.5.1</vertx.version>
         <fabric8-vertx-maven-plugin.version>1.0.13</fabric8-vertx-maven-plugin.version>
     </properties>
 
@@ -133,8 +133,28 @@
                         <useFile>false</useFile>
                         <includes>
                             <include>**/*Spec.groovy</include>
+                            <include>**/*Spec.java</include>
                         </includes>
                     </configuration>
+                    <executions>
+                        <execution>
+                            <id>integration-test</id>
+                            <phase>integration-test</phase>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                            <configuration>
+                                <includes>
+                                    <include>**/*SpecIT.groovy</include>
+                                    <include>**/*SpecIT.java</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>**/Spec.groovy</exclude>
+                                    <exclude>**/Spec.java</exclude>
+                                </excludes>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
@@ -160,11 +180,6 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>1.6.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>io.fabric8</groupId>
-                    <artifactId>vertx-maven-plugin</artifactId>
-                    <version>1.0.13</version>
                 </plugin>
             </plugins>
         </pluginManagement>

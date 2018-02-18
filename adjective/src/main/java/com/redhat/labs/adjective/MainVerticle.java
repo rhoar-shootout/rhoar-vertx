@@ -2,6 +2,7 @@ package com.redhat.labs.adjective;
 
 import com.redhat.labs.adjective.services.AdjectiveService;
 import com.redhat.labs.adjective.services.AdjectiveServiceImpl;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
 import io.vertx.config.ConfigRetriever;
@@ -16,6 +17,8 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.api.RequestParameter;
+import io.vertx.ext.web.api.RequestParameters;
 import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory;
 import io.vertx.serviceproxy.ServiceBinder;
 import liquibase.Contexts;
@@ -44,18 +47,19 @@ public class MainVerticle extends AbstractVerticle {
     public void start(Future<Void> startFuture) {
         // ConfigStore from Kube/OCPs
         Future<JsonObject> f1 = Future.future();
-        this.initConfigRetriever(f1.completer());
-        f1.compose(this::asyncLoadDbSchema)
+        this.initConfigRetriever()
+            .compose(this::asyncLoadDbSchema)
             .compose(this::provisionRouter)
             .compose(this::createHttpServer)
             .compose(s -> startFuture.complete(), startFuture);
     }
 
     /**
-     * Initialize the {@link ConfigRetriever}
-     * @param handler Handles the results of requesting the configuration
+     * Initialize the {@link ConfigRetriever} and return a {@link Future}
+     * @return A {@link Future} which resolves with the loaded configuration as a {@link JsonObject}
      */
-    private void initConfigRetriever(Handler<AsyncResult<JsonObject>> handler) {
+    private Future<JsonObject> initConfigRetriever() {
+        Future<JsonObject> configFuture = Future.future();
         ConfigStoreOptions defaultOpts = new ConfigStoreOptions()
                 .setType("file")
                 .setFormat("json")
@@ -76,7 +80,8 @@ public class MainVerticle extends AbstractVerticle {
             retrieverOptions.addStore(confOpts);
         }
 
-        ConfigRetriever.create(vertx, retrieverOptions).getConfig(handler);
+        ConfigRetriever.create(vertx, retrieverOptions).getConfig(configFuture.completer());
+        return configFuture;
     }
 
     /**
@@ -132,10 +137,12 @@ public class MainVerticle extends AbstractVerticle {
                 .setTimeout(200000) // consider a failure if the operation does not succeed in time
                 .setFallbackOnFailure(false) // do we call the fallback on failure
                 .setResetTimeout(1000000));
-        breaker.<OpenAPI3RouterFactory>execute(f -> OpenAPI3RouterFactory.createRouterFactoryFromFile(
-                vertx,
-                getClass().getResource("/adjective.yaml").getFile(),
-                f.completer())).setHandler(future.completer());
+        breaker.<OpenAPI3RouterFactory>execute(f ->
+            OpenAPI3RouterFactory.create(
+                    vertx,
+                    "/adjective.yaml",
+                    future.completer())
+        ).setHandler(future.completer());
         return future;
     }
 
@@ -146,9 +153,9 @@ public class MainVerticle extends AbstractVerticle {
      * @return The {@link HttpServer} instance created
      */
     private Future<HttpServer> createHttpServer(OpenAPI3RouterFactory factory) {
-        factory.addHandlerByOperationId("getAdjective", this::handleAdjGet);
+        factory.addHandlerByOperationId("getAdjective", ctx -> service.get(res -> handleResponse(ctx, OK, res)));
         factory.addHandlerByOperationId("addAdjective", this::handleAdjPost);
-        factory.addHandlerByOperationId("health", this::healthCheck);
+        factory.addHandlerByOperationId("health", ctx -> service.check(res -> handleResponse(ctx, OK, res)));
         Future<HttpServer> future = Future.future();
         JsonObject httpJsonCfg = vertx
                 .getOrCreateContext()
@@ -161,51 +168,32 @@ public class MainVerticle extends AbstractVerticle {
         return future;
     }
 
-    private void healthCheck(RoutingContext ctx) {
-        service.check(res -> {
-            if (res.succeeded()) {
-                ctx.response()
-                        .setStatusCode(CREATED.code())
-                        .setStatusMessage(CREATED.reasonPhrase())
-                        .end(res.result().encodePrettily());
-            } else {
-                ctx.response()
-                        .setStatusCode(INTERNAL_SERVER_ERROR.code())
-                        .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
-                        .end();
-            }
-        });
-    }
-
     private void handleAdjPost(RoutingContext ctx) {
-        service.get(res -> {
-            if (res.succeeded()) {
-                ctx.response()
-                        .setStatusCode(CREATED.code())
-                        .setStatusMessage(CREATED.reasonPhrase())
-                        .end();
-            } else {
-                ctx.response()
-                        .setStatusCode(INTERNAL_SERVER_ERROR.code())
-                        .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
-                        .end();
-            }
-        });
+        RequestParameters params = ctx.get("parsedParameters");
+        RequestParameter bodyParam = params.body();
+        JsonObject data = bodyParam.getJsonObject();
+        service.save(data.getString("adjective"),
+            res -> handleResponse(ctx, CREATED, res)
+        );
     }
 
-    private void handleAdjGet(RoutingContext ctx) {
-        service.get(res -> {
-            if (res.succeeded()) {
-                ctx.response()
-                        .setStatusCode(OK.code())
-                        .setStatusMessage(OK.reasonPhrase())
-                        .end(res.result().encodePrettily());
-            } else {
-                ctx.response()
-                        .setStatusCode(INTERNAL_SERVER_ERROR.code())
-                        .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
-                        .end();
-            }
-        });
+    /**
+     * Handles a Service Proxy response and uses the {@link RoutingContext} to send the response
+     * @param ctx The {@link RoutingContext} of the request we are responding to
+     * @param status The {@link HttpResponseStatus} to be used for the request's successful response
+     * @param res The {@link AsyncResult} which contains a JSON body for the response or an exception
+     */
+    private void handleResponse(RoutingContext ctx, HttpResponseStatus status, AsyncResult<String> res) {
+        if (res.succeeded()) {
+            ctx.response()
+                    .setStatusCode(status.code())
+                    .setStatusMessage(status.reasonPhrase())
+                    .end(res.result());
+        } else {
+            ctx.response()
+                    .setStatusCode(INTERNAL_SERVER_ERROR.code())
+                    .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
+                    .end();
+        }
     }
 }

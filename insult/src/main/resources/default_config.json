@@ -5,7 +5,7 @@
   },
   "noun": {
     "host": "127.0.0.1",
-    "port": 8081
+    "port": 8083
   },
   "http": {
     "port": 8080,
@@ -13,8 +13,8 @@
   },
   "breakers": {
     "maxFailures" : 5,
-    "timeout" : 2000,
+    "timeout" : 500,
     "fallbackOnFailure" : false,
-    "resetTimeout" : 20000
+    "resetTimeout" : 10000
   }
 }

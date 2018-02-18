@@ -22,11 +22,11 @@ public class AdjectiveServiceImpl implements AdjectiveService {
     }
 
     @Override
-    public void save(String adjective, Handler<AsyncResult<JsonObject>> resultHandler) {
+    public void save(String adjective, Handler<AsyncResult<String>> resultHandler) {
         client.getConnection(connRes -> saveConnHandler(adjective, resultHandler, connRes));
     }
 
-    private void saveConnHandler(String adjective, Handler<AsyncResult<JsonObject>> resultHandler, AsyncResult<SQLConnection> connRes) {
+    private void saveConnHandler(String adjective, Handler<AsyncResult<String>> resultHandler, AsyncResult<SQLConnection> connRes) {
         if (connRes.succeeded()) {
             SQLConnection conn = connRes.result();
             JsonArray params = new JsonArray().add(adjective);
@@ -34,7 +34,7 @@ public class AdjectiveServiceImpl implements AdjectiveService {
                 if (queryRes.succeeded()) {
                     JsonObject result = new JsonObject()
                             .put("url", String.format("/rest/v1/adjective/%s", adjective));
-                    resultHandler.handle(Future.succeededFuture(result));
+                    resultHandler.handle(Future.succeededFuture(result.encodePrettily()));
                 } else {
                     resultHandler.handle(Future.failedFuture(queryRes.cause()));
                 }
@@ -45,11 +45,11 @@ public class AdjectiveServiceImpl implements AdjectiveService {
     }
 
     @Override
-    public void get(Handler<AsyncResult<JsonObject>> resultHandler) {
+    public void get(Handler<AsyncResult<String>> resultHandler) {
         client.getConnection(connRes -> handleGetConnectionResult(resultHandler, connRes));
     }
 
-    private void handleGetConnectionResult(Handler<AsyncResult<JsonObject>> resultHandler, AsyncResult<SQLConnection> connRes) {
+    private void handleGetConnectionResult(Handler<AsyncResult<String>> resultHandler, AsyncResult<SQLConnection> connRes) {
         if (connRes.succeeded()) {
             System.out.println("DB connection retrieved");
             SQLConnection conn = connRes.result();
@@ -59,7 +59,7 @@ public class AdjectiveServiceImpl implements AdjectiveService {
                     System.out.println("Got adjective from DB");
                     ResultSet resultSet = queryRes.result();
                     JsonObject result = resultSet.getRows().get(0);
-                    resultHandler.handle(Future.succeededFuture(result));
+                    resultHandler.handle(Future.succeededFuture(result.encodePrettily()));
                     connRes.result().close();
                 } else {
                     System.out.println("Failed to get adjective from DB");
@@ -71,12 +71,12 @@ public class AdjectiveServiceImpl implements AdjectiveService {
         }
     }
 
-    public void check(Handler<AsyncResult<JsonObject>> handler) {
+    public void check(Handler<AsyncResult<String>> handler) {
         client.getConnection(connRes -> {
             if (connRes.succeeded()) {
                 connRes.result().query("SELECT 1 FROM adjectives LIMIT 1", queryRes -> {
                     if (queryRes.succeeded()) {
-                        handler.handle(Future.succeededFuture(new JsonObject().put("status", "OK")));
+                        handler.handle(Future.succeededFuture(new JsonObject().put("status", "OK").encodePrettily()));
                         connRes.result().close();
                     } else {
                         handler.handle(Future.failedFuture(queryRes.cause()));
