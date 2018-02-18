@@ -25,7 +25,7 @@ class MainVerticleSpec extends Specification {
 
     def "Test noun GET service"() {
         given: "A Vert.x HTTP Client"
-            def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8081))
+            def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8083))
         and: "An instance of AsyncConditions"
             def async = new AsyncConditions(2)
         when: "An HTTP request is made to the noun service"
@@ -46,7 +46,7 @@ class MainVerticleSpec extends Specification {
 
     def "Test noun HEALTH service"() {
         given: "A Vert.x HTTP Client"
-            def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8081))
+            def client = vertx.createHttpClient(new HttpClientOptions().setDefaultHost("localhost").setDefaultPort(8083))
         and: "An instance of AsyncConditions"
             def async = new AsyncConditions(2)
 
