@@ -47,7 +47,7 @@ public class MainVerticle extends AbstractVerticle {
         // ConfigStore from Kube/OCPs
         this.initConfigRetriever()
             .compose(this::asyncLoadDbSchema)
-            .compose(this::provisionRouter)
+            .compose(v -> this.provisionRouter())
             .compose(this::createHttpServer)
             .compose(s -> startFuture.complete(), startFuture);
     }
@@ -126,7 +126,7 @@ public class MainVerticle extends AbstractVerticle {
      * @param v A Void for continuity in the async compoprovisionedsition
      * @return An {@link OpenAPI3RouterFactory} {@link Future} to be used to complete the next Async step
      */
-    private Future<OpenAPI3RouterFactory> provisionRouter(Void v) {
+    private Future<OpenAPI3RouterFactory> provisionRouter() {
         service = new AdjectiveServiceImpl(vertx);
         new ServiceBinder(vertx).setAddress("adjective.service").register(AdjectiveService.class, service);
         Future<OpenAPI3RouterFactory> future = Future.future();
