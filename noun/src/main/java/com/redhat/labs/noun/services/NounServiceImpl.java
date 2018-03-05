@@ -10,8 +10,12 @@ import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLClient;
 import io.vertx.ext.sql.SQLConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NounServiceImpl implements NounService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NounServiceImpl.class);
 
     SQLClient client;
 
@@ -74,18 +78,18 @@ public class NounServiceImpl implements NounService {
      */
     private void handleGetConnectionResult(Handler<AsyncResult<String>> resultHandler, AsyncResult<SQLConnection> connRes) {
         if (connRes.succeeded()) {
-            System.out.println("DB connection retrieved");
+            LOG.debug("DB connection retrieved");
             SQLConnection conn = connRes.result();
             conn.query("SELECT noun FROM nouns ORDER BY RAND() LIMIT 1", queryRes -> {
-                System.out.println("DB Query complete");
+                LOG.debug("DB Query complete");
                 if (queryRes.succeeded()) {
-                    System.out.println("Got noun from DB");
+                    LOG.debug("Got noun from DB");
                     ResultSet resultSet = queryRes.result();
                     JsonObject result = resultSet.getRows().get(0);
                     resultHandler.handle(Future.succeededFuture(result.encodePrettily()));
                     connRes.result().close();
                 } else {
-                    System.out.println("Failed to get noun from DB");
+                    LOG.debug("Failed to get noun from DB", queryRes.cause());
                     resultHandler.handle(Future.failedFuture(queryRes.cause()));
                 }
             });
