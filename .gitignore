@@ -14,3 +14,4 @@ ui/src/main/frontend/node/**
 **/vertx-start-process.id
 **/package-lock.json
 ui/src/main/frontend/dist/**
+ui/src/main/frontend/src/assets/js/**
