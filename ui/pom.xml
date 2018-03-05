@@ -14,7 +14,9 @@
     <artifactId>ui</artifactId>
 
     <properties>
-        <sonar.exclusions>src/main/frontend/node*</sonar.exclusions>
+        <sonar.exclusions>src/main/frontend/src/assets/js/**,src/main/frontend/config/**,src/main/frontend/build/**,src/main/frontend/node/**,src/main/frontend/node_modules/**,src/main/frontend/dist/**</sonar.exclusions>
+        <sonar.language>js</sonar.language>
+        <sonar.sources>src/main/frontend</sonar.sources>
     </properties>
 
     <build>
