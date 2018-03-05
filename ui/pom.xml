@@ -13,6 +13,10 @@
     <groupId>com.redhat.labs</groupId>
     <artifactId>ui</artifactId>
 
+    <properties>
+        <sonar.exclusions>src/main/frontend/node*</sonar.exclusions>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
