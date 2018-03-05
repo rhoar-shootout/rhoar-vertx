@@ -9,7 +9,6 @@ import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.*;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
@@ -23,11 +22,9 @@ import io.vertx.ext.web.api.contract.openapi3.OpenAPI3RouterFactory;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
-import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.serviceproxy.ServiceBinder;
 
 import java.util.Arrays;
-import java.util.Map;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.vertx.core.http.HttpMethod.CONNECT;
@@ -36,6 +33,7 @@ import static io.vertx.core.http.HttpMethod.POST;
 
 public class MainVerticle extends AbstractVerticle {
 
+    public static final String INSULT_SERVICE = "insult.service";
     InsultService service;
 
     /**
@@ -45,7 +43,6 @@ public class MainVerticle extends AbstractVerticle {
     @Override
     public void start(final Future<Void> startFuture) {
         // ConfigStore from Kube/OCPs
-        Future<JsonObject> f1 = Future.future();
         this.initConfigRetriever()
             .compose(this::provisionRouter)
             .compose(this::createHttpServer)
@@ -92,7 +89,7 @@ public class MainVerticle extends AbstractVerticle {
     private Future<OpenAPI3RouterFactory> provisionRouter(JsonObject config) {
         vertx.getOrCreateContext().config().mergeIn(config);
         service = new InsultServiceImpl(vertx);
-        new ServiceBinder(vertx).setAddress("insult.service").register(InsultService.class, service);
+        new ServiceBinder(vertx).setAddress(INSULT_SERVICE).register(InsultService.class, service);
         Future<OpenAPI3RouterFactory> future = Future.future();
         CircuitBreaker breaker = CircuitBreaker.create("openApi", vertx, new CircuitBreakerOptions()
                 .setMaxFailures(5) // number of failure before opening the circuit
@@ -132,8 +129,8 @@ public class MainVerticle extends AbstractVerticle {
         HttpServerOptions httpConfig = new HttpServerOptions(httpJsonCfg);
         Router router = factory.getRouter();
         BridgeOptions bOpts = new BridgeOptions();
-        bOpts.setInboundPermitted(Arrays.asList(new PermittedOptions().setAddress("insult.service")));
-        bOpts.setOutboundPermitted(Arrays.asList(new PermittedOptions().setAddress("insult.service")));
+        bOpts.setInboundPermitted(Arrays.asList(new PermittedOptions().setAddress(INSULT_SERVICE)));
+        bOpts.setOutboundPermitted(Arrays.asList(new PermittedOptions().setAddress(INSULT_SERVICE)));
         SockJSHandler sockHandler = SockJSHandler.create(vertx).bridge(bOpts);
         baseRouter.route("/eventbus/*").handler(sockHandler);
         baseRouter.mountSubRouter("/api/v1", router);
