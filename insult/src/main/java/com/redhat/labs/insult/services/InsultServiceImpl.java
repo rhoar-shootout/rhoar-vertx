@@ -6,14 +6,20 @@ import io.vertx.circuitbreaker.CircuitBreakerState;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 public class InsultServiceImpl implements InsultService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(InsultServiceImpl.class);
+
     Vertx vertx;
     HttpClient client;
-    JsonObject nounCfg, adjCfg, breakerCfg;
+    JsonObject nounCfg;
+    JsonObject adjCfg;
+    JsonObject breakerCfg;
     private CircuitBreaker nounBreaker;
     private CircuitBreaker adjBreaker;
 
@@ -28,12 +34,12 @@ public class InsultServiceImpl implements InsultService {
         adjCfg = vertx.getOrCreateContext().config().getJsonObject("adjective");
         breakerCfg = vertx.getOrCreateContext().config().getJsonObject("breakers");
         nounBreaker = CircuitBreaker.create("noun", vertx, new CircuitBreakerOptions(breakerCfg));
-        nounBreaker.openHandler(o -> System.out.println("Noun circuit breaker has opened"))
-                .closeHandler(c -> System.out.println("Noun circuit breaker has closed"))
+        nounBreaker.openHandler(o -> LOG.warn("Noun circuit breaker has opened"))
+                .closeHandler(c -> LOG.warn("Noun circuit breaker has closed"))
                 .fallback(t -> "[noun fallback]");
         adjBreaker = CircuitBreaker.create("adj", vertx, new CircuitBreakerOptions(breakerCfg));
-        adjBreaker.openHandler(o -> System.out.println("Adjective circuit breaker has opened"))
-                .closeHandler(c -> System.out.println("Adjective circuit breaker has closed"))
+        adjBreaker.openHandler(o -> LOG.warn("Adjective circuit breaker has opened"))
+                .closeHandler(c -> LOG.warn("Adjective circuit breaker has closed"))
                 .fallback(t -> "[adjective fallback]");
     }
 
@@ -53,7 +59,7 @@ public class InsultServiceImpl implements InsultService {
      * @param f A {@link Future} which will be used to handle the results
      */
     private void makeRestCall(JsonObject cfg, String path, Future<String> f) {
-        System.out.println("Executing GET: "+path);
+        LOG.debug("Executing GET: {}", path);
         client.getNow(cfg.getInteger("port"), cfg.getString("host"), path, r -> {
             if (r.statusCode() == OK.code()) {
                 r.bodyHandler(b -> {
