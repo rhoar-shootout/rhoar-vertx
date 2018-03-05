@@ -12,7 +12,7 @@ import io.vertx.core.json.JsonObject;
 public interface InsultService {
 
     static InsultService create(Vertx vertx) {
-        return null;
+        return new InsultServiceImpl(vertx);
     }
 
     static InsultService createProxy(Vertx vertx, String address) {

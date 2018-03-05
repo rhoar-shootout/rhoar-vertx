@@ -11,7 +11,6 @@ import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
@@ -27,7 +26,6 @@ import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.DatabaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 
 import java.sql.Connection;
@@ -46,10 +44,9 @@ public class MainVerticle extends AbstractVerticle {
     @Override
     public void start(Future<Void> startFuture) {
         // ConfigStore from Kube/OCPs
-        Future<JsonObject> f1 = Future.future();
         this.initConfigRetriever()
             .compose(this::asyncLoadDbSchema)
-            .compose(this::provisionRouter)
+            .compose(v -> this.provisionRouter())
             .compose(this::createHttpServer)
             .compose(s -> startFuture.complete(), startFuture);
     }
@@ -128,7 +125,7 @@ public class MainVerticle extends AbstractVerticle {
      * @param v A Void for continuity in the async compoprovisionedsition
      * @return An {@link OpenAPI3RouterFactory} {@link Future} to be used to complete the next Async step
      */
-    private Future<OpenAPI3RouterFactory> provisionRouter(Void v) {
+    private Future<OpenAPI3RouterFactory> provisionRouter() {
         service = new AdjectiveServiceImpl(vertx);
         new ServiceBinder(vertx).setAddress("adjective.service").register(AdjectiveService.class, service);
         Future<OpenAPI3RouterFactory> future = Future.future();

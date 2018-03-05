@@ -10,9 +10,12 @@ import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLClient;
 import io.vertx.ext.sql.SQLConnection;
-import io.vertx.serviceproxy.ServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AdjectiveServiceImpl implements AdjectiveService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AdjectiveService.class);
 
     SQLClient client;
 
@@ -51,18 +54,18 @@ public class AdjectiveServiceImpl implements AdjectiveService {
 
     private void handleGetConnectionResult(Handler<AsyncResult<String>> resultHandler, AsyncResult<SQLConnection> connRes) {
         if (connRes.succeeded()) {
-            System.out.println("DB connection retrieved");
+            LOG.debug("DB connection retrieved");
             SQLConnection conn = connRes.result();
             conn.query("SELECT adjective FROM adjectives ORDER BY RAND() LIMIT 1", queryRes -> {
-                System.out.println("DB Query complete");
+                LOG.debug("DB Query complete");
                 if (queryRes.succeeded()) {
-                    System.out.println("Got adjective from DB");
+                    LOG.debug("Got adjective from DB");
                     ResultSet resultSet = queryRes.result();
                     JsonObject result = resultSet.getRows().get(0);
                     resultHandler.handle(Future.succeededFuture(result.encodePrettily()));
                     connRes.result().close();
                 } else {
-                    System.out.println("Failed to get adjective from DB");
+                    LOG.debug("Failed to get adjective from DB");
                     resultHandler.handle(Future.failedFuture(queryRes.cause()));
                 }
             });

@@ -10,7 +10,8 @@ var
   OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin'),
   CopyWebpackPlugin = require('copy-webpack-plugin'),
   SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin'),
-  fsUtils = require('./fs-utils')
+  fsUtils = require('./fs-utils');
+var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = merge(baseWebpackConfig, {
   module: {
@@ -22,11 +23,12 @@ module.exports = merge(baseWebpackConfig, {
   },
   devtool: config.build.productionSourceMap ? '#source-map' : false,
   plugins: [
-    new webpack.optimize.UglifyJsPlugin({
+    new UglifyJSPlugin({
       sourceMap: config.build.productionSourceMap,
-      minimize: true,
-      compress: {
-        warnings: false
+      uglifyOptions: {
+        compress: {
+          warnings: false
+        }
       }
     }),
     // Compress extracted CSS. We are using this plugin so that possible
