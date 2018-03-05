@@ -10,7 +10,6 @@ import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLClient;
 import io.vertx.ext.sql.SQLConnection;
-import io.vertx.serviceproxy.ServiceException;
 
 public class AdjectiveServiceImpl implements AdjectiveService {
 
