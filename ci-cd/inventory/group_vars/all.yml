@@ -136,7 +136,49 @@ openshift_cluster_content:
     - insult-app
   - name: fabric8-rolebinding
     template: "{{ inventory_dir }}/../openshift-templates/fabric8-role-bindings/template.json"
-    params: "{{ inventory_dir }}/../params/multi-module/fabric8_dev"
+    params: "{{ inventory_dir }}/../params/noun-app/fabric8_dev"
+    namespace: rhoar-dev
+    tags:
+    - insult-app
+  - name: fabric8-rolebinding
+    template: "{{ inventory_dir }}/../openshift-templates/fabric8-role-bindings/template.json"
+    params: "{{ inventory_dir }}/../params/adjective-app/fabric8_dev"
+    namespace: rhoar-dev
+    tags:
+    - insult-app
+  - name: fabric8-rolebinding
+    template: "{{ inventory_dir }}/../openshift-templates/fabric8-role-bindings/template.json"
+    params: "{{ inventory_dir }}/../params/insult-app/fabric8_dev"
+    namespace: rhoar-dev
+    tags:
+    - insult-app
+  - name: fabric8-rolebinding
+    template: "{{ inventory_dir }}/../openshift-templates/fabric8-role-bindings/template.json"
+    params: "{{ inventory_dir }}/../params/ui-app/fabric8_dev"
+    namespace: rhoar-dev
+    tags:
+    - insult-app
+  - name: fabric8-rolebinding
+    template: "{{ inventory_dir }}/../openshift-templates/fabric8-role-bindings/template.json"
+    params: "{{ inventory_dir }}/../params/noun-app/fabric8_demo"
+    namespace: rhoar-dev
+    tags:
+    - insult-app
+  - name: fabric8-rolebinding
+    template: "{{ inventory_dir }}/../openshift-templates/fabric8-role-bindings/template.json"
+    params: "{{ inventory_dir }}/../params/adjective-app/fabric8_demo"
+    namespace: rhoar-dev
+    tags:
+    - insult-app
+  - name: fabric8-rolebinding
+    template: "{{ inventory_dir }}/../openshift-templates/fabric8-role-bindings/template.json"
+    params: "{{ inventory_dir }}/../params/insult-app/fabric8_demo"
+    namespace: rhoar-dev
+    tags:
+    - insult-app
+  - name: fabric8-rolebinding
+    template: "{{ inventory_dir }}/../openshift-templates/fabric8-role-bindings/template.json"
+    params: "{{ inventory_dir }}/../params/ui-app/fabric8_demo"
     namespace: rhoar-dev
     tags:
     - insult-app
