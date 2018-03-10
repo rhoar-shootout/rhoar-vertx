@@ -1,4 +1,0 @@
-PIPELINE_SOURCE_REPOSITORY_URL=https://github.com/InfoSec812/rhoar-vertx.git
-PIPELINE_SOURCE_REPOSITORY_REF=openshift-deployment
-NAME=insult-app
-S2I_BASE_IMAGE=redhat-openjdk18-openshift:1.2
