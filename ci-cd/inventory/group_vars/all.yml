@@ -84,6 +84,12 @@ openshift_cluster_content:
     namespace: rhoar-ci-cd
     tags:
     - sonar
+- object: imagestreams
+  content:
+  - name: nginx-image-stream
+    template: "{{ inventory_dir }}/../openshift-templates/imagestream/template.yaml"
+    params: "{{ inventory_dir }}/../params/nginx-image-stream/import"
+    namespace: rhoar-ci-cd
 - object: app-builds
   content:
   - name: adjective-build

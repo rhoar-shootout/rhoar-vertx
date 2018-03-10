@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: "true"
+parameters:
+- name: DOCKER_IMAGE_URL
+  description: The URL of the image to create an ImageStream for
+  displayName: Image URL
+  required: true
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    creationTimestamp: null
+    generation: 1
+    name: nginx-112-rhel7
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: ${DOCKER_IMAGE_URL}
+      generation: 1
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: Source

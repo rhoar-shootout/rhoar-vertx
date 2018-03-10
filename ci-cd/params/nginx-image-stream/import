@@ -1,0 +1,1 @@
+DOCKER_IMAGE_URL=registry.access.redhat.com/rhscl/nginx-112-rhel7:latest
