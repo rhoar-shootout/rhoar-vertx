@@ -19,7 +19,17 @@ openshift_cluster_content:
     template_action: create
     params: "{{ inventory_dir }}/../params/projectrequests/demo"
     tags:
-    - projects 
+    - projects
+- object: imagestreams
+  content:
+  - name: nginx-image-stream
+    template: "{{ inventory_dir }}/../openshift-templates/imagestream/template.yaml"
+    params: "{{ inventory_dir }}/../params/nginx-image-stream/import"
+    namespace: rhoar-ci-cd
+  - name: jenkins-37-image-stream
+    template: "{{ inventory_dir }}/../openshift-templates/imagestream/template.yaml"
+    params: "{{ inventory_dir }}/../params/jenkins-37-image-stream/import"
+    namespace: rhoar-ci-cd
 - object: ci-cd-builds
   content:
   - name: jenkins-s2i
@@ -84,12 +94,6 @@ openshift_cluster_content:
     namespace: rhoar-ci-cd
     tags:
     - sonar
-- object: imagestreams
-  content:
-  - name: nginx-image-stream
-    template: "{{ inventory_dir }}/../openshift-templates/imagestream/template.yaml"
-    params: "{{ inventory_dir }}/../params/nginx-image-stream/import"
-    namespace: rhoar-ci-cd
 - object: app-builds
   content:
   - name: adjective-build
@@ -205,12 +209,6 @@ openshift_cluster_content:
   - name: insult-ui
     template: "{{ inventory_dir }}/../openshift-templates/http-app/template.json"
     params: "{{ inventory_dir }}/../params/ui-app/deploy_dev"
-    namespace: rhoar-dev
-    tags:
-    - insult-app
-  - name: fabric8-rolebinding
-    template: "{{ inventory_dir }}/../openshift-templates/fabric8-role-bindings/template.json"
-    params: "{{ inventory_dir }}/../params/multi-module/fabric8_dev"
     namespace: rhoar-dev
     tags:
     - insult-app
