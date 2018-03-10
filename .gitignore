@@ -19,3 +19,5 @@ ui/src/main/frontend/dist/
 ui/src/main/frontend/dist/**
 nb-configuration.xml
 **/vertx-start-process.id
+ci-cd/roles
+ci-cd/roles/**
