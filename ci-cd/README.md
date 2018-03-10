@@ -46,7 +46,7 @@ Currently, the following components have templates but are not yet integrated in
 3. Install the required [casl-ansible](https://github.com/redhat-cop/casl-ansible) dependency
     1. `[rhoar-ci-cd]$ ansible-galaxy install -r requirements.yml --roles-path=roles`
 4. Run the ansible playbook provided by the casl-ansible
-    1. `[rhoar-ci-cd]$ ansible-playbook roles/casl-ansible/playbooks/openshift-cluster-seed.yml -i inventory/`
+    1. `[rhoar-ci-cd]$ ansible-playbook roles/openshift-applier/playbooks/openshift-cluster-seed.yml -i inventory/`
 
 After running the playbook, the pipeline should execute in Jenkins, build the spring boot app, deploy artifacts to nexus, deploy the container to the dev stage and then wait approval to deploy to the demo stage. See Common Issues
 
