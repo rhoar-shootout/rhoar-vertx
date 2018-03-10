@@ -86,9 +86,21 @@ openshift_cluster_content:
     - sonar
 - object: app-builds
   content:
-  - name: multimodule-build
+  - name: adjective-build
     template: "{{ inventory_dir }}/../openshift-templates/s2i-app-build/template-no-secrets.json"
-    params: "{{ inventory_dir }}/../params/multi-module/build"
+    params: "{{ inventory_dir }}/../params/adjective-app/build"
+    namespace: rhoar-ci-cd
+  - name: noun-build
+    template: "{{ inventory_dir }}/../openshift-templates/s2i-app-build/template-no-secrets.json"
+    params: "{{ inventory_dir }}/../params/noun-app/build"
+    namespace: rhoar-ci-cd
+  - name: insult-build
+    template: "{{ inventory_dir }}/../openshift-templates/s2i-app-build/template-no-secrets.json"
+    params: "{{ inventory_dir }}/../params/insult-app/build"
+    namespace: rhoar-ci-cd
+  - name: ui-build
+    template: "{{ inventory_dir }}/../openshift-templates/s2i-app-build/template-no-secrets.json"
+    params: "{{ inventory_dir }}/../params/ui-app/build"
     namespace: rhoar-ci-cd
 - object: dev-stage
   content:
