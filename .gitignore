@@ -15,3 +15,9 @@ ui/src/main/frontend/node/**
 **/package-lock.json
 ui/src/main/frontend/dist/**
 ui/src/main/frontend/src/assets/js/**
+ui/src/main/frontend/dist/
+ui/src/main/frontend/dist/**
+nb-configuration.xml
+**/vertx-start-process.id
+ci-cd/roles
+ci-cd/roles/**
