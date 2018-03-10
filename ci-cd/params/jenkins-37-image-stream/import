@@ -1,1 +1,2 @@
 DOCKER_IMAGE_URL=registry.access.redhat.com/openshift3/jenkins-2-rhel7:latest
+IMAGE_STREAM_NAME=jenkins-2-rhel7
