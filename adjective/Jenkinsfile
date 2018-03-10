@@ -15,8 +15,7 @@ node('master') {
     env.APP_NAME = "${env.JOB_NAME}".replaceAll(/-?pipeline-?/, '').replaceAll(/-?${env.NAMESPACE}-?/, '')
     def projectBase = "${env.NAMESPACE}".replaceAll(/-dev/, '')
     env.STAGE1 = "${projectBase}-dev"
-    env.STAGE2 = "${projectBase}-stage"
-    env.STAGE3 = "${projectBase}-prod"
+    env.STAGE2 = "${projectBase}-demo"
 }
 
 node('jenkins-slave-mvn') {
@@ -78,12 +77,6 @@ node('jenkins-slave-mvn') {
     ${env.OC_CMD} tag ${env.STAGE2}/${env.APP_NAME}:latest ${env.STAGE3}/${env.APP_NAME}:latest
     """
     }
-
-    stage("Verify Deployment to ${env.STAGE3}") {
-
-        openshiftVerifyDeployment(deploymentConfig: "${env.APP_NAME}", namespace: "${STAGE3}", verifyReplicaCount: true)
-
-    }
 }
 
-println "Application ${env.APP_NAME} is now in Production!"
+println "Application ${env.APP_NAME} is now in Demo!"
