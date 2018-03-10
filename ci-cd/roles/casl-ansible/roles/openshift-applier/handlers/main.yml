@@ -1,7 +1,0 @@
----
-
-- name: "Clean-up temporary dir"
-  file:
-    path: "{{ tmp_inv_dir }}"
-    state: absent
-
