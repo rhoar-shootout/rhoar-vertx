@@ -1,0 +1,5 @@
+SOURCE_REPOSITORY_URL=https://github.com/InfoSec812/rhoar-vertx
+SOURCE_CONTEXT_DIR=ci-cd/docker/jenkins-slave-mvn
+BUILDER_IMAGE_NAME=registry.access.redhat.com/openshift3/jenkins-slave-maven-rhel7:latest
+NAME=jenkins-slave-mvn
+SOURCE_REPOSITORY_REF=openshift-deployment
