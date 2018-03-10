@@ -6,3 +6,7 @@
   scm: git
   version: master
   name: casl-ansible
+- src: https://github.com/redhat-cop/openshift-applier.git
+  scm: git
+  version: master
+  name: openshift-applier
