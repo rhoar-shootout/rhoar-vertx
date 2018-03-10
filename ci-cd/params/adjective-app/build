@@ -1,5 +1,5 @@
 PIPELINE_SOURCE_REPOSITORY_URL=https://github.com/rhoar-shootout/rhoar-vertx.git
 PIPELINE_SOURCE_REPOSITORY_REF=master
 NAME=adjective-app
-BUILD_CONTEXT_DIR=adjective
+PIPELINE_CONTEXT_DIR=adjective
 S2I_BASE_IMAGE=redhat-openjdk18-openshift:1.2

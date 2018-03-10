@@ -1,5 +1,5 @@
 PIPELINE_SOURCE_REPOSITORY_URL=https://github.com/rhoar-shootout/rhoar-vertx.git
 PIPELINE_SOURCE_REPOSITORY_REF=master
 NAME=ui-app
-BUILD_CONTEXT_DIR=ui
+PIPELINE_CONTEXT_DIR=ui
 S2I_BASE_IMAGE=rhscl/nginx-112-rhel7:latest
