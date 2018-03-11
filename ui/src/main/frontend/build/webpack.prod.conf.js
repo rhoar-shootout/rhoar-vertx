@@ -43,7 +43,7 @@ module.exports = merge(baseWebpackConfig, {
       filename: '[name].[contenthash].css'
     }),
     new HtmlWebpackPlugin({
-      filename: path.resolve(__dirname, '../dist/index.html'),
+      filename: path.resolve(__dirname, '../../resources/webroot/index.html'),
       template: 'src/index.html',
       inject: true,
       minify: {

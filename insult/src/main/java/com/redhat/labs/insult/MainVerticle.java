@@ -12,6 +12,8 @@ import io.vertx.core.*;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -32,6 +34,8 @@ import static io.vertx.core.http.HttpMethod.GET;
 import static io.vertx.core.http.HttpMethod.POST;
 
 public class MainVerticle extends AbstractVerticle {
+
+    private final Logger LOG = LoggerFactory.getLogger(MainVerticle.class);
 
     public static final String INSULT_SERVICE = "insult.service";
 
@@ -70,7 +74,7 @@ public class MainVerticle extends AbstractVerticle {
             ConfigStoreOptions confOpts = new ConfigStoreOptions()
                     .setType("configmap")
                     .setConfig(new JsonObject()
-                            .put("name", "insult_config")
+                            .put("name", "insult-config")
                             .put("optional", true)
                     );
             retrieverOptions.addStore(confOpts);
@@ -89,6 +93,7 @@ public class MainVerticle extends AbstractVerticle {
      */
     private Future<OpenAPI3RouterFactory> provisionRouter(JsonObject config) {
         vertx.getOrCreateContext().config().mergeIn(config);
+        LOG.info(vertx.getOrCreateContext().config().encodePrettily());
         service = new InsultServiceImpl(vertx);
         new ServiceBinder(vertx).setAddress(INSULT_SERVICE).register(InsultService.class, service);
         Future<OpenAPI3RouterFactory> future = Future.future();
@@ -112,7 +117,7 @@ public class MainVerticle extends AbstractVerticle {
      */
     private Future<HttpServer> createHttpServer(OpenAPI3RouterFactory factory) {
         Router baseRouter = Router.router(vertx);
-        CorsHandler corsHandler = CorsHandler.create("https?://(localhost|127\\.0\\.0\\.1|.*\\.redhat\\.com)(:[0-9]*)?(/.*)?")
+        CorsHandler corsHandler = CorsHandler.create("https?://(localhost|127\\.0\\.0\\.1|.*\\.redhat\\.com|.*\\.nip\\.io)(:[0-9]*)?(/.*)?")
                 .allowCredentials(true)
                 .allowedHeader("Content-Type")
                 .allowedMethod(GET)

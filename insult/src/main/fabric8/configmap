@@ -1,0 +1,21 @@
+spec:
+  data:
+    noun: |-
+      {
+          "port": 8080,
+          "host": "noun"
+      }
+    adjective: |-
+      {
+          "port": 8080,
+          "host": "adjective"
+      }
+    http: |-
+      {
+        "port": 8080,
+        "host": "0.0.0.0"
+      }
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: null
+    name: insult-config

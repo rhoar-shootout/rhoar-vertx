@@ -71,7 +71,7 @@ public class MainVerticle extends AbstractVerticle {
             ConfigStoreOptions confOpts = new ConfigStoreOptions()
                     .setType("configmap")
                     .setConfig(new JsonObject()
-                            .put("name", "noun_config")
+                            .put("name", "ui-config")
                             .put("optional", true)
                     );
             retrieverOptions.addStore(confOpts);
