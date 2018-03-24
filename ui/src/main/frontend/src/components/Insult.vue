@@ -12,7 +12,7 @@
     </div>
     <div class="row">
       <div class="col-12" style="padding-top: 20px">
-        <q-toggle color="red" v-model="isReactiveEnabled">&nbsp;Use WebSockets</q-toggle>
+        <q-toggle color="red" v-model="isReactiveEnabled">Use WebSockets</q-toggle>
       </div>
     </div>
   </div>
