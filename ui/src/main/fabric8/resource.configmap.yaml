@@ -1,6 +1,6 @@
 data:
   settings.js: |-
-    window.base_url = "http://insult-devtest2.192.168.42.48.nip.io";
+    window.base_url = "http://insult-rhoar-vertx.192.168.42.48.nip.io";
 kind: ConfigMap
 metadata:
   creationTimestamp: null
