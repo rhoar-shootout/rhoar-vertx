@@ -5,6 +5,7 @@ import com.redhat.labs.noun.services.NounServiceImpl;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
+import io.vertx.codegen.annotations.Nullable;
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
@@ -14,6 +15,8 @@ import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.api.RequestParameter;
@@ -34,6 +37,8 @@ import java.sql.DriverManager;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
 public class MainVerticle extends AbstractVerticle {
+
+    private final Logger LOG = LoggerFactory.getLogger(MainVerticle.class);
 
     private NounService service;
 
@@ -71,7 +76,7 @@ public class MainVerticle extends AbstractVerticle {
             ConfigStoreOptions confOpts = new ConfigStoreOptions()
                     .setType("configmap")
                     .setConfig(new JsonObject()
-                            .put("name", "noun_config")
+                            .put("name", "noun-config")
                             .put("optional", true)
                     );
             retrieverOptions.addStore(confOpts);
@@ -87,7 +92,9 @@ public class MainVerticle extends AbstractVerticle {
      * @return A {@link Void} {@link Future} to be used to complete the next Async step
      */
     private Future<Void> asyncLoadDbSchema(JsonObject config) {
-        vertx.getOrCreateContext().config().mergeIn(config);
+        @Nullable JsonObject defaultConfig = vertx.getOrCreateContext().config();
+        defaultConfig.mergeIn(config);
+        LOG.info(defaultConfig.encodePrettily());
         final Future<Void> future = Future.future();
         vertx.executeBlocking(this::loadDbSchema, future.completer());
         return future;

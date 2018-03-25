@@ -5,6 +5,7 @@ import com.redhat.labs.insult.services.InsultServiceImpl;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
+import io.vertx.codegen.annotations.Nullable;
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
@@ -12,6 +13,8 @@ import io.vertx.core.*;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -32,6 +35,8 @@ import static io.vertx.core.http.HttpMethod.GET;
 import static io.vertx.core.http.HttpMethod.POST;
 
 public class MainVerticle extends AbstractVerticle {
+
+    private final Logger LOG = LoggerFactory.getLogger(MainVerticle.class);
 
     public static final String INSULT_SERVICE = "insult.service";
 
@@ -70,7 +75,7 @@ public class MainVerticle extends AbstractVerticle {
             ConfigStoreOptions confOpts = new ConfigStoreOptions()
                     .setType("configmap")
                     .setConfig(new JsonObject()
-                            .put("name", "insult_config")
+                            .put("name", "insult-config")
                             .put("optional", true)
                     );
             retrieverOptions.addStore(confOpts);
@@ -89,6 +94,7 @@ public class MainVerticle extends AbstractVerticle {
      */
     private Future<OpenAPI3RouterFactory> provisionRouter(JsonObject config) {
         vertx.getOrCreateContext().config().mergeIn(config);
+        LOG.info(vertx.getOrCreateContext().config().encodePrettily());
         service = new InsultServiceImpl(vertx);
         new ServiceBinder(vertx).setAddress(INSULT_SERVICE).register(InsultService.class, service);
         Future<OpenAPI3RouterFactory> future = Future.future();
@@ -112,7 +118,12 @@ public class MainVerticle extends AbstractVerticle {
      */
     private Future<HttpServer> createHttpServer(OpenAPI3RouterFactory factory) {
         Router baseRouter = Router.router(vertx);
-        CorsHandler corsHandler = CorsHandler.create("https?://(localhost|127\\.0\\.0\\.1|.*\\.redhat\\.com)(:[0-9]*)?(/.*)?")
+        baseRouter.route().handler(ctx -> {
+            LOG.info(ctx.request().path());
+            ctx.next();
+        });
+        @Nullable JsonObject config = vertx.getOrCreateContext().config();
+        CorsHandler corsHandler = CorsHandler.create(config.getJsonObject("http").getString("cors"))
                 .allowCredentials(true)
                 .allowedHeader("Content-Type")
                 .allowedMethod(GET)
@@ -123,9 +134,7 @@ public class MainVerticle extends AbstractVerticle {
         factory.addHandlerByOperationId("insultByName", this::handleNamedInsult);
         factory.addHandlerByOperationId("health", ctx -> service.check(res -> handleResponse(ctx, OK, res)));
         Future<HttpServer> future = Future.future();
-        JsonObject httpJsonCfg = vertx
-                .getOrCreateContext()
-                .config()
+        JsonObject httpJsonCfg = config
                 .getJsonObject("http");
         HttpServerOptions httpConfig = new HttpServerOptions(httpJsonCfg);
         Router router = factory.getRouter();

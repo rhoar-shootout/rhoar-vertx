@@ -14,6 +14,8 @@ import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.api.RequestParameter;
@@ -34,6 +36,8 @@ import java.sql.DriverManager;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
 public class MainVerticle extends AbstractVerticle {
+
+    private final Logger LOG = LoggerFactory.getLogger(MainVerticle.class);
 
     private AdjectiveService service;
 
@@ -71,7 +75,7 @@ public class MainVerticle extends AbstractVerticle {
             ConfigStoreOptions confOpts = new ConfigStoreOptions()
                     .setType("configmap")
                     .setConfig(new JsonObject()
-                            .put("name", "adjective_config")
+                            .put("name", "adjective-config")
                             .put("optional", true)
                     );
             retrieverOptions.addStore(confOpts);
@@ -88,6 +92,7 @@ public class MainVerticle extends AbstractVerticle {
      */
     private Future<Void> asyncLoadDbSchema(JsonObject config) {
         vertx.getOrCreateContext().config().mergeIn(config);
+        LOG.info(vertx.getOrCreateContext().config().encodePrettily());
         final Future<Void> future = Future.future();
         vertx.executeBlocking(this::loadDbSchema, future.completer());
         return future;

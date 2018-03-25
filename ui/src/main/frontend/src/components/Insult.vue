@@ -12,7 +12,7 @@
     </div>
     <div class="row">
       <div class="col-12" style="padding-top: 20px">
-        <q-toggle color="red" v-model="isReactiveEnabled">&nbsp;Use WebSockets</q-toggle>
+        <q-toggle color="red" v-model="isReactiveEnabled"><div class="margined">Use WebSockets</div></q-toggle>
       </div>
     </div>
   </div>
@@ -144,4 +144,6 @@ export default {
 <style lang="stylus" scoped>
 .row
   flex: auto
+.margined
+  padding-left: 3px
 </style>

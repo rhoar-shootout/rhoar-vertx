@@ -21,3 +21,5 @@ nb-configuration.xml
 **/vertx-start-process.id
 ci-cd/roles
 ci-cd/roles/**
+ui/src/main/resources/webroot
+ui/src/main/resources/webroot/**

@@ -8,13 +8,17 @@ parameters:
   description: The URL of the image to create an ImageStream for
   displayName: Image URL
   required: true
+- name: IMAGE_STREAM_NAME
+  description: The name to use for identifying this image stream
+  displayName: Image stream name
+  required: true
 objects:
 - apiVersion: v1
   kind: ImageStream
   metadata:
     creationTimestamp: null
     generation: 1
-    name: nginx-112-rhel7
+    name: ${IMAGE_STREAM_NAME}
   spec:
     lookupPolicy:
       local: false
