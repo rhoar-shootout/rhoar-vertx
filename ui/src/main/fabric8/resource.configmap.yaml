@@ -4,10 +4,10 @@ data:
     var loc_host = window.location.hostname.replace(/^ui/, 'insult');
     var loc_port = window.location.port;
 
-    if ((loc_port == 443 && loc_proto === "https") || (loc_port = 80 && loc_proto === "http")) {
-        window.base_url = loc_proto + "://" + loc_host;
+    if (loc_port === "") {
+        window.base_url = loc_proto + "//" + loc_host;
     } else {
-        window.base_url = loc_proto + "://" + loc_host + ":" + loc_port;
+        window.base_url = loc_proto + "//" + loc_host + ":" + loc_port;
     }
 kind: ConfigMap
 metadata:

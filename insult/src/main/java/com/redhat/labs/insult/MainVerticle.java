@@ -5,6 +5,7 @@ import com.redhat.labs.insult.services.InsultServiceImpl;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.circuitbreaker.CircuitBreaker;
 import io.vertx.circuitbreaker.CircuitBreakerOptions;
+import io.vertx.codegen.annotations.Nullable;
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
@@ -121,7 +122,8 @@ public class MainVerticle extends AbstractVerticle {
             LOG.info(ctx.request().path());
             ctx.next();
         });
-        CorsHandler corsHandler = CorsHandler.create("https?://(localhost|127\\.0\\.0\\.1|.*\\.redhat\\.com|.*\\.nip\\.io)(:[0-9]*)?(/.*)?")
+        @Nullable JsonObject config = vertx.getOrCreateContext().config();
+        CorsHandler corsHandler = CorsHandler.create(config.getJsonObject("http").getString("cors"))
                 .allowCredentials(true)
                 .allowedHeader("Content-Type")
                 .allowedMethod(GET)
@@ -132,9 +134,7 @@ public class MainVerticle extends AbstractVerticle {
         factory.addHandlerByOperationId("insultByName", this::handleNamedInsult);
         factory.addHandlerByOperationId("health", ctx -> service.check(res -> handleResponse(ctx, OK, res)));
         Future<HttpServer> future = Future.future();
-        JsonObject httpJsonCfg = vertx
-                .getOrCreateContext()
-                .config()
+        JsonObject httpJsonCfg = config
                 .getJsonObject("http");
         HttpServerOptions httpConfig = new HttpServerOptions(httpJsonCfg);
         Router router = factory.getRouter();
