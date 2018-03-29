@@ -42,69 +42,53 @@ node("jenkins-slave-mvn") {
     }
 
     // List of modules to package as FAT JARs
-    def modules = ['adjective','noun','insult'] as List
+    def modules = ['adjective','noun','insult','ui'] as List
 
-    dir ("${env.SOURCE_CONTEXT_DIR}") {
-
-        stage('Build backend services') {
-            withSonarQubeEnv {
-                sh "${env.BUILD_COMMAND}"
+    modules.each {
+        dir("${it}") {
+            stage('Build ${it}-app JAR files and perform SonarQube Analysis') {
+                withSonarQubeEnv {
+                    sh "${env.BUILD_COMMAND}"
+                }
             }
-        }
 
-        modules.each {
-            // assumes uber jar is created
             stage('Build ${it}-app Image') {
-                sh "oc start-build ${it}-app --from-file=${it}-app/target/${it}-app-${pom.version}.jar"
+                sh "oc start-build ${it}-app --from-file=target/${it}-app-${pom.version}.jar"
             }
-        }
-    }
-
-    modules.each {
-        // no user changes should be needed below this point
-        stage ('Deploy ${it}-app to Dev') {
-            openshiftTag (apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "${it}-app", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEV_PROJECT}", namespace: "${env.OPENSHIFT_BUILD_NAMESPACE}", srcStream: "${it}-app", srcTag: 'latest')
-
-            openshiftVerifyDeployment (apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "${it}-app", namespace: "${env.DEV_PROJECT}", verifyReplicaCount: true)
-        }
-    }
-
-    modules.each {
-        stage('Deploy ${it}-app to Demo') {
-            input "Promote Application to Demo?"
-
-            openshiftTag(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "${it}-app", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEMO_PROJECT}", namespace: "${env.DEV_PROJECT}", srcStream: "${it}-app", srcTag: 'latest')
-
-            openshiftVerifyDeployment(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "${it}-app", namespace: "${env.DEMO_PROJECT}", verifyReplicaCount: true)
         }
     }
 }
 
-node("jenkins-slave-npm") {
-    stage('SCM Checkout') {
-        checkout scm
-    }
+node('') {
+    modules.each {
+        // no user changes should be needed below this point
+        stage("Deploy ${it}-app to Dev") {
+            openshiftTag(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "${it}-app", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEV_PROJECT}", namespace: "${env.OPENSHIFT_BUILD_NAMESPACE}", srcStream: "${it}-app", srcTag: 'latest')
 
-    stage ('Build UI') {
-        dir ("${env.SOURCE_CONTEXT_DIR}/ui/src/main/frontend") {
-            sh "npm install"
-            sh "npm run build"
-            sh "oc start-build insult-ui --from-dir=dist/ --follow"
+            openshiftVerifyDeployment(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "${it}-app", namespace: "${env.DEV_PROJECT}", verifyReplicaCount: true)
         }
     }
+}
 
-    // no user changes should be needed below this point
-    stage ('Deploy UI to Dev') {
-        openshiftTag (apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "insult-ui", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEV_PROJECT}", namespace: "${env.OPENSHIFT_BUILD_NAMESPACE}", srcStream: "insult-ui", srcTag: 'latest')
-
-        openshiftVerifyDeployment (apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "insult-ui", namespace: "${env.DEV_PROJECT}", verifyReplicaCount: true)
+node('jenkins-slave-zap') {
+    stage('Scan Web Application') {
+        dir('/zap') {
+            def retVal = sh returnStatus: true, script: '/zap/zap-baseline.py -r baseline.html -t http://<some-web-site>'
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: '/zap/wrk', reportFiles: 'baseline.html', reportName: 'ZAP Baseline Scan', reportTitles: 'ZAP Baseline Scan'])
+            echo "Return value is: ${retVal}"
+        }
     }
+}
 
-    stage('Deploy UI to Demo') {
+node('') {
+    stage('Promote application to Demo environment') {
         input "Promote Application to Demo?"
+        modules.each {
+            stage("Deploy ${it}-app to Demo") {
+                openshiftTag(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "${it}-app", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEMO_PROJECT}", namespace: "${env.DEV_PROJECT}", srcStream: "${it}-app", srcTag: 'latest')
 
-        openshiftTag(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "insult-ui", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEMO_PROJECT}", namespace: "${env.DEV_PROJECT}", srcStream: "insult-ui", srcTag: 'latest')
-
-        openshiftVerifyDeployment(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "insult-ui", namespace: "${env.DEMO_PROJECT}", verifyReplicaCount: true)
+                openshiftVerifyDeployment(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "${it}-app", namespace: "${env.DEMO_PROJECT}", verifyReplicaCount: true)
+            }
+        }
     }
 }
