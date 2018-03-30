@@ -1,6 +1,0 @@
----
-- hosts: localhost
-  roles:
-  - role: create_users
-    num_users: 10
-    user_prefix: 'testuser'
