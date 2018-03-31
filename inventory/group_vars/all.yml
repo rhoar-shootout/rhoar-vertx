@@ -21,6 +21,18 @@ openshift_cluster_content:
     params: "{{ inventory_dir }}/../params/projectrequests/demo"
     tags:
     - projects
+- object: deployment-env-rolebindings
+  content:
+  - name: dev-env-default-view
+    template: "{{ inventory_dir }}/../openshift-templates/vertx-app-k8s-api/template.yaml"
+    params: "{{ inventory_dir }}/../params/rolebindings/dev"
+    tags:
+    - k8s-api-access
+  - name: demo-env-default-view
+    template: "{{ inventory_dir }}/../openshift-templates/vertx-app-k8s-api/template.yaml"
+    params: "{{ inventory_dir }}/../params/rolebindings/demo"
+    tags:
+    - k8s-api-access
 - object: ci-cd-builds
   content:
   - name: jenkins-s2i
@@ -94,31 +106,37 @@ openshift_cluster_content:
   - name: adjective-app
     template: "{{ inventory_dir }}/../openshift-templates/automation-api-hsql/template.json"
     params: "{{ inventory_dir }}/../params/adjective-app/deploy_dev"
-    namespace: labs-dev
+    namespace: rhoar-vertx-dev
     tags:
     - adjective-app
   - name: noun-app
     template: "{{ inventory_dir }}/../openshift-templates/automation-api-hsql/template.json"
     params: "{{ inventory_dir }}/../params/noun-app/deploy_dev"
-    namespace: labs-dev
+    namespace: rhoar-vertx-dev
     tags:
     - noun-app
   - name: insult-app
     template: "{{ inventory_dir }}/../openshift-templates/automation-api-hsql/template.json"
     params: "{{ inventory_dir }}/../params/insult-app/deploy_dev"
-    namespace: labs-dev
+    namespace: rhoar-vertx-dev
     tags:
     - insult-app
   - name: ui-app
     template: "{{ inventory_dir }}/../openshift-templates/automation-api-hsql/template.json"
     params: "{{ inventory_dir }}/../params/ui-app/deploy_dev"
-    namespace: labs-dev
+    namespace: rhoar-vertx-dev
     tags:
     - ui-app
   - name: fabric8-rolebinding
     template: "{{ inventory_dir }}/../openshift-templates/fabric8-role-bindings/template.json"
     params: "{{ inventory_dir }}/../params/ui-app/fabric8_dev"
-    namespace: labs-dev
+    namespace: rhoar-vertx-dev
+    tags:
+    - app
+  - name: default-rolebinding
+    template: "{{ inventory_dir }}/../openshift-templates/k8s-configmap-api-rolebinding/template.json"
+    params: "{{ inventory_dir }}/../params/rolebindings/dev"
+    namespace: rhoar-vertx-dev
     tags:
     - app
 - object: demo-stage
@@ -126,30 +144,36 @@ openshift_cluster_content:
   - name: adjective-app
     template: "{{ inventory_dir }}/../openshift-templates/automation-api-hsql/template.json"
     params: "{{ inventory_dir }}/../params/adjective-app/deploy_demo"
-    namespace: labs-demo
+    namespace: rhoar-vertx-demo
     tags:
     - adjective-app
   - name: noun-app
     template: "{{ inventory_dir }}/../openshift-templates/automation-api-hsql/template.json"
     params: "{{ inventory_dir }}/../params/noun-app/deploy_demo"
-    namespace: labs-demo
+    namespace: rhoar-vertx-demo
     tags:
     - noun-app
   - name: insult-app
     template: "{{ inventory_dir }}/../openshift-templates/automation-api-hsql/template.json"
     params: "{{ inventory_dir }}/../params/insult-app/deploy_demo"
-    namespace: labs-demo
+    namespace: rhoar-vertx-demo
     tags:
     - insult-app
   - name: ui-app
     template: "{{ inventory_dir }}/../openshift-templates/automation-api-hsql/template.json"
     params: "{{ inventory_dir }}/../params/ui-app/deploy_demo"
-    namespace: ui-demo
+    namespace: rhoar-vertx-demo
     tags:
     - ui-app
   - name: fabric8-rolebinding
     template: "{{ inventory_dir }}/../openshift-templates/fabric8-role-bindings/template.json"
     params: "{{ inventory_dir }}/../params/ui-app/fabric8_demo"
-    namespace: labs-demo
+    namespace: rhoar-vertx-demo
+    tags:
+    - app
+  - name: default-rolebinding
+    template: "{{ inventory_dir }}/../openshift-templates/k8s-configmap-api-rolebinding/template.json"
+    params: "{{ inventory_dir }}/../params/rolebindings/demo"
+    namespace: rhoar-vertx-demo
     tags:
     - app

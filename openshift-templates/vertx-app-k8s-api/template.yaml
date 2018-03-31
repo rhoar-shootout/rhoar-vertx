@@ -31,13 +31,7 @@ objects:
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
-      rollingParams:
-        intervalSeconds: 1
-        maxSurge: 25%
-        maxUnavailable: 25%
-        timeoutSeconds: 600
-        updatePeriodSeconds: 1
-      type: Rolling
+      type: Recreate
     template:
       metadata:
         creationTimestamp: null
@@ -47,6 +41,26 @@ objects:
         containers:
         - image: ${NAME}
           imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: ${APP_HEALTH_PATH}
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: ${APP_HEALTH_PATH}
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
           name: ${NAME}
           ports:
           - containerPort: 8778
@@ -131,3 +145,8 @@ parameters:
   displayName: Project/Namespace for Jenkins Pipelines
   name: PIPELINES_NAMESPACE
   required: true
+- description: The HTTP request path to check the application's health
+  displayName: HTTP Health Path
+  name: APP_HEALTH_PATH
+  required: true
+  value: "/health"
