@@ -90,18 +90,6 @@
             <artifactId>objenesis</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.redhat.labs</groupId>
-            <artifactId>adjective</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.redhat.labs</groupId>
-            <artifactId>noun</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
