@@ -45,10 +45,7 @@ objects:
           name: ${NAME}
       spec:
         containers:
-        - env:
-          - name: SPRING_PROFILES_ACTIVE
-            value: hsql
-          image: ${NAME}
+        - image: ${NAME}
           imagePullPolicy: Always
           name: ${NAME}
           ports:
