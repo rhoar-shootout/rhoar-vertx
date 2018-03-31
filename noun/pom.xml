@@ -187,6 +187,7 @@
                 <version>3.5.33</version>
                 <executions>
                     <execution>
+                        <phase>deploy</phase>
                         <goals>
                             <goal>resource</goal>
                             <goal>build</goal>
