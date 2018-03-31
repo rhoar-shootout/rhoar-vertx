@@ -1,84 +1,103 @@
 #!/usr/bin/groovy
 
-////
-// This pipeline requires the following plugins:
-// Kubernetes Plugin 0.10
-////
+/**
+ this section of the pipeline executes on the master, which has a lot of useful variables that we can leverage to configure our pipeline
+ **/
+node (''){
+    // these should align to the projects in the Application Inventory
+    env.NAMESPACE = env.OPENSHIFT_BUILD_NAMESPACE.reverse().drop(6).reverse()
+    env.DEV_PROJECT = "${env.NAMESPACE}-dev"
+    env.DEMO_PROJECT = "${env.NAMESPACE}-demo"
 
-String ocpApiServer = env.OCP_API_SERVER ? "${env.OCP_API_SERVER}" : "https://openshift.default.svc.cluster.local"
+    // this value should be set to the root directory of your source code within the git repository.
+    // if the root of the source is the root of the repo, leave this value as ""
+    env.SOURCE_CONTEXT_DIR = ""
 
-node('master') {
-    env.NAMESPACE = readFile('/var/run/secrets/kubernetes.io/serviceaccount/namespace').trim()
-    env.TOKEN = readFile('/var/run/secrets/kubernetes.io/serviceaccount/token').trim()
-    env.OC_CMD = "oc --token=${env.TOKEN} --server=${ocpApiServer} --certificate-authority=/run/secrets/kubernetes.io/serviceaccount/ca.crt --namespace=${env.NAMESPACE}"
+    /**
+     these are used to configure which repository maven deploys
+     the ci-cd starter will create a nexus that has this repos available
+     **/
+    env.MVN_SNAPSHOT_DEPLOYMENT_REPOSITORY = "nexus::default::http://nexus:8081/repository/maven-snapshots"
+    env.MVN_RELEASE_DEPLOYMENT_REPOSITORY = "nexus::default::http://nexus:8081/repository/maven-releases"
 
-    env.APP_NAME = "${env.JOB_NAME}".replaceAll(/-?pipeline-?/, '').replaceAll(/-?${env.NAMESPACE}-?/, '')
-    def projectBase = "${env.NAMESPACE}".replaceAll(/-dev/, '')
-    env.STAGE1 = "${projectBase}-dev"
-    env.STAGE2 = "${projectBase}-demo"
+    // the complete build command
+    // depending on the slave, you may need to wrap this command with scl enable
+    env.BUILD_COMMAND = "mvn clean package dependency-check:check jacoco:report sonar:sonar vertx:package"
+
+    // these are defaults that will help run openshift automation
+    // DO NOT DELETE THESE - they are required
+    env.OCP_API_SERVER = "${env.OPENSHIFT_API_URL}"
+    env.OCP_TOKEN = readFile('/var/run/secrets/kubernetes.io/serviceaccount/token').trim()
 
     env.MODULE = "adjective"
 }
 
-node('jenkins-slave-mvn') {
-    def mvnCmd = 'mvn'
-    String pomFileLocation = "pom.xml"
+
+/**
+ this section of the pipeline executes on a custom mvn build slave.
+ you should not need to change anything below unless you need new stages or new integrations (e.g. Cucumber Reports or Sonar)
+ **/
+node("jenkins-slave-mvn") {
 
     stage('SCM Checkout') {
         checkout scm
     }
 
-    dir(env.MODULE) {
-        stage('Build') {
-            sh 'mvn clean compile'
-        }
-
-        stage('Unit Test') {
-            sh "${mvnCmd} package vertx:package"
-        }
-
-        stage('Quality Analysis') {
+    dir("${module}") {
+        stage('Build ${env.MODULE}-app JAR files and perform SonarQube Analysis') {
             withSonarQubeEnv {
-                sh "${mvnCmd} sonar:sonar"
+                sh "${env.BUILD_COMMAND}"
             }
         }
 
-        stage('Build Image') {
-            sh """
-          rm -rf oc-build && mkdir -p oc-build/deployments
-          for t in \$(echo "jar;war;ear" | tr ";" "\\n"); do
-            cp -rfv ./target/*.\$t oc-build/deployments/ 2> /dev/null || echo "No \$t files"
-          done
-          ${env.OC_CMD} start-build ${env.APP_NAME} --from-dir=oc-build --wait=true --follow=true || exit 1
-        """
+        stage('Build ${env.MODULE}-app Image') {
+            def pomVersion = sh(script: 'mvn -Dexec.executable=\'echo\' -Dexec.args=\'${project.version}\' --non-recursive exec:exec -q',
+                    returnStdout: true)
+            sh "oc start-build ${env.MODULE}-app --from-file=target/${env.MODULE}-${pomVersion}.jar"
         }
-    }
-
-    stage("Verify Deployment to ${env.STAGE1}") {
-
-        openshiftVerifyDeployment(deploymentConfig: "${env.APP_NAME}", namespace: "${STAGE1}", verifyReplicaCount: true)
-
-        input "Promote Application to Stage?"
-    }
-
-    stage("Promote To ${env.STAGE2}") {
-        sh """
-    ${env.OC_CMD} tag ${env.STAGE1}/${env.APP_NAME}:latest ${env.STAGE2}/${env.APP_NAME}:latest
-    """
-    }
-
-    stage("Verify Deployment to ${env.STAGE2}") {
-
-        openshiftVerifyDeployment(deploymentConfig: "${env.APP_NAME}", namespace: "${STAGE2}", verifyReplicaCount: true)
-
-        input "Promote Application to Prod?"
-    }
-
-    stage("Promote To ${env.STAGE3}") {
-        sh """
-    ${env.OC_CMD} tag ${env.STAGE2}/${env.APP_NAME}:latest ${env.STAGE3}/${env.APP_NAME}:latest
-    """
     }
 }
 
-println "Application ${env.APP_NAME} is now in Demo!"
+node('') {
+    // no user changes should be needed below this point
+    stage("Deploy ${env.MODULE}-app to Dev") {
+        openshiftTag(apiURL: "${env.OCP_API_SERVER}",
+                     authToken: "${env.OCP_TOKEN}",
+                     destStream: "${env.MODULE}-app",
+                     destTag: 'latest',
+                     destinationAuthToken: "${env.OCP_TOKEN}",
+                     destinationNamespace: "${env.DEV_PROJECT}",
+                     namespace: "${env.OPENSHIFT_BUILD_NAMESPACE}",
+                     srcStream: "${env.MODULE}-app",
+                     srcTag: 'latest')
+
+        openshiftVerifyDeployment(apiURL: "${env.OCP_API_SERVER}",
+                                  authToken: "${env.OCP_TOKEN}",
+                                  depCfg: "${env.MODULE}-app",
+                                  namespace: "${env.DEV_PROJECT}",
+                                  verifyReplicaCount: true)
+    }
+}
+
+node('jenkins-slave-zap') {
+    stage('Scan Web Application') {
+        dir('/zap') {
+            def retVal = sh returnStatus: true, script: '/zap/zap-baseline.py -r baseline.html -t http://<some-web-site>'
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: '/zap/wrk', reportFiles: 'baseline.html', reportName: 'ZAP Baseline Scan', reportTitles: 'ZAP Baseline Scan'])
+            echo "Return value is: ${retVal}"
+        }
+    }
+}
+
+node('') {
+    stage('Promote application to Demo environment') {
+        input "Promote Application to Demo?"
+        modules.each {
+            stage("Deploy ${it}-app to Demo") {
+                openshiftTag(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "${it}-app", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEMO_PROJECT}", namespace: "${env.DEV_PROJECT}", srcStream: "${it}-app", srcTag: 'latest')
+
+                openshiftVerifyDeployment(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "${it}-app", namespace: "${env.DEMO_PROJECT}", verifyReplicaCount: true)
+            }
+        }
+    }
+}

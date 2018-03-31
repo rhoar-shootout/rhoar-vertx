@@ -20,7 +20,7 @@ class MainVerticleSpec extends Specification {
             }
         })
 
-        async.await(10)
+        async.await(25)
     }
 
     def "Test adjective GET service"() {
