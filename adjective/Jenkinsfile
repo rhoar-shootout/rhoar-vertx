@@ -43,14 +43,14 @@ node("jenkins-slave-mvn") {
         checkout scm
     }
 
-    dir("${module}") {
-        stage('Build ${env.MODULE}-app JAR files and perform SonarQube Analysis') {
+    dir("${env.MODULE}") {
+        stage("Build ${env.MODULE}-app JAR files and perform SonarQube Analysis") {
             withSonarQubeEnv {
                 sh "${env.BUILD_COMMAND}"
             }
         }
 
-        stage('Build ${env.MODULE}-app Image') {
+        stage("Build ${env.MODULE}-app Image") {
             def pomVersion = sh(script: 'mvn -Dexec.executable=\'echo\' -Dexec.args=\'${project.version}\' --non-recursive exec:exec -q',
                     returnStdout: true)
             sh "oc start-build ${env.MODULE}-app --from-file=target/${env.MODULE}-${pomVersion}.jar"
@@ -62,20 +62,20 @@ node('') {
     // no user changes should be needed below this point
     stage("Deploy ${env.MODULE}-app to Dev") {
         openshiftTag(apiURL: "${env.OCP_API_SERVER}",
-                     authToken: "${env.OCP_TOKEN}",
-                     destStream: "${env.MODULE}-app",
-                     destTag: 'latest',
-                     destinationAuthToken: "${env.OCP_TOKEN}",
-                     destinationNamespace: "${env.DEV_PROJECT}",
-                     namespace: "${env.OPENSHIFT_BUILD_NAMESPACE}",
-                     srcStream: "${env.MODULE}-app",
-                     srcTag: 'latest')
+                authToken: "${env.OCP_TOKEN}",
+                destStream: "${env.MODULE}-app",
+                destTag: 'latest',
+                destinationAuthToken: "${env.OCP_TOKEN}",
+                destinationNamespace: "${env.DEV_PROJECT}",
+                namespace: "${env.OPENSHIFT_BUILD_NAMESPACE}",
+                srcStream: "${env.MODULE}-app",
+                srcTag: 'latest')
 
         openshiftVerifyDeployment(apiURL: "${env.OCP_API_SERVER}",
-                                  authToken: "${env.OCP_TOKEN}",
-                                  depCfg: "${env.MODULE}-app",
-                                  namespace: "${env.DEV_PROJECT}",
-                                  verifyReplicaCount: true)
+                authToken: "${env.OCP_TOKEN}",
+                depCfg: "${env.MODULE}-app",
+                namespace: "${env.DEV_PROJECT}",
+                verifyReplicaCount: true)
     }
 }
 
