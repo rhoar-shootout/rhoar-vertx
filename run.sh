@@ -46,6 +46,7 @@ else
 fi 
 
 docker run --rm -i \
+    -w /tmp/src \
     -v $(pwd):/tmp/src:z \
     -v $HOME/.kube:/root/.kube:z \
     -t redhatcop/openshift-applier \
