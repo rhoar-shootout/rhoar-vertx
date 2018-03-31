@@ -1,0 +1,32 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  template: vertx-app-k8s-api-view-rolebinding
+metadata:
+  annotations:
+    tags: vertx,k8s,kubernetes
+  name: vertx-app-k8s-api-view-rolebinding
+objects:
+- apiVersion: rbac.authorization.k8s.io/v1beta1
+  kind: RoleBinding
+  metadata:
+    name: role-view-default
+    namespace: ${TARGET_NAMESPACE}
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: view
+  subjects:
+    - kind: ServiceAccount
+      name: ${SERVICE_ACCOUNT}
+      namespace: ${TARGET_NAMESPACE}
+parameters:
+- description: The Namespace to which this rolebinding should be applied
+  displayName: Target Namespace
+  required: true
+  name: TARGET_NAMESPACE
+- description: The name of the service account which is to be bound
+  displayName: Service Account
+  required: true
+  name: SERVICE_ACCOUNT
+  value: default

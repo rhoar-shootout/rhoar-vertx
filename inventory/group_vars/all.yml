@@ -21,6 +21,18 @@ openshift_cluster_content:
     params: "{{ inventory_dir }}/../params/projectrequests/demo"
     tags:
     - projects
+- object: deployment-env-rolebindings
+  content:
+  - name: dev-env-default-view
+    template: "{{ inventory_dir }}/../openshift-templates/vertx-app-k8s-api/template.yaml"
+    params: "{{ inventory_dir }}/../params/rolebindings/dev"
+    tags:
+    - k8s-api-access
+  - name: demo-env-default-view
+    template: "{{ inventory_dir }}/../openshift-templates/vertx-app-k8s-api/template.yaml"
+    params: "{{ inventory_dir }}/../params/rolebindings/demo"
+    tags:
+    - k8s-api-access
 - object: ci-cd-builds
   content:
   - name: jenkins-s2i
@@ -121,6 +133,12 @@ openshift_cluster_content:
     namespace: rhoar-vertx-dev
     tags:
     - app
+  - name: default-rolebinding
+    template: "{{ inventory_dir }}/../openshift-templates/k8s-configmap-api-rolebinding/template.json"
+    params: "{{ inventory_dir }}/../params/rolebindings/dev"
+    namespace: rhoar-vertx-dev
+    tags:
+    - app
 - object: demo-stage
   content:
   - name: adjective-app
@@ -150,6 +168,12 @@ openshift_cluster_content:
   - name: fabric8-rolebinding
     template: "{{ inventory_dir }}/../openshift-templates/fabric8-role-bindings/template.json"
     params: "{{ inventory_dir }}/../params/ui-app/fabric8_demo"
+    namespace: rhoar-vertx-demo
+    tags:
+    - app
+  - name: default-rolebinding
+    template: "{{ inventory_dir }}/../openshift-templates/k8s-configmap-api-rolebinding/template.json"
+    params: "{{ inventory_dir }}/../params/rolebindings/demo"
     namespace: rhoar-vertx-demo
     tags:
     - app
