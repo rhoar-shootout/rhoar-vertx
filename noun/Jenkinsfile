@@ -8,7 +8,6 @@
 String ocpApiServer = env.OCP_API_SERVER ? "${env.OCP_API_SERVER}" : "https://openshift.default.svc.cluster.local"
 
 node('master') {
-
     env.NAMESPACE = readFile('/var/run/secrets/kubernetes.io/serviceaccount/namespace').trim()
     env.TOKEN = readFile('/var/run/secrets/kubernetes.io/serviceaccount/token').trim()
     env.OC_CMD = "oc --token=${env.TOKEN} --server=${ocpApiServer} --certificate-authority=/run/secrets/kubernetes.io/serviceaccount/ca.crt --namespace=${env.NAMESPACE}"
@@ -18,6 +17,7 @@ node('master') {
     env.STAGE1 = "${projectBase}-dev"
     env.STAGE2 = "${projectBase}-demo"
 
+    env.MODULE = "noun"
 }
 
 node('jenkins-slave-mvn') {
@@ -28,7 +28,7 @@ node('jenkins-slave-mvn') {
         checkout scm
     }
 
-    dir(env.BUILD_CONTEXT_DIR) {
+    dir(env.MODULE) {
         stage('Build') {
             sh 'mvn clean compile'
         }

@@ -16,6 +16,8 @@ node('master') {
     def projectBase = "${env.NAMESPACE}".replaceAll(/-dev/, '')
     env.STAGE1 = "${projectBase}-dev"
     env.STAGE2 = "${projectBase}-demo"
+
+    env.MODULE = "adjective"
 }
 
 node('jenkins-slave-mvn') {
@@ -26,7 +28,7 @@ node('jenkins-slave-mvn') {
         checkout scm
     }
 
-    dir(env.BUILD_CONTEXT_DIR) {
+    dir(env.MODULE) {
         stage('Build') {
             sh 'mvn clean compile'
         }
