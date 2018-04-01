@@ -96,6 +96,11 @@ openshift_cluster_content:
     namespace: rhoar-vertx-ci-cd
 - object: dev-stage
   content:
+  - name: apps-config
+    template: "{{ inventory_dir }}/../openshift-templates/insult-configmaps/template.yaml"
+    namespace: rhoar-vertx-dev
+    tags:
+    - apps-config
   - name: adjective-app
     template: "{{ inventory_dir }}/../openshift-templates/vertx-app-k8s-api/template.yaml"
     params: "{{ inventory_dir }}/../params/adjective-app/deploy_dev"
@@ -134,6 +139,11 @@ openshift_cluster_content:
     - app
 - object: demo-stage
   content:
+  - name: apps-config
+    template: "{{ inventory_dir }}/../openshift-templates/insult-configmaps/template.yaml"
+    namespace: rhoar-vertx-demo
+    tags:
+    - apps-config
   - name: adjective-app
     template: "{{ inventory_dir }}/../openshift-templates/vertx-app-k8s-api/template.yaml"
     params: "{{ inventory_dir }}/../params/adjective-app/deploy_demo"
