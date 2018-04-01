@@ -47,6 +47,7 @@ openshift_cluster_content:
   content:
   - name: maven-cache-volume
     template: "{{ inventory_dir }}/../openshift-templates/mvn-cache-pv/template.yaml"
+    params: "{{ inventory_dir }}/../params/mvn-cache-volume/deploy"
     namespace: rhoar-vertx-ci-cd
     tags:
     - jenkins
