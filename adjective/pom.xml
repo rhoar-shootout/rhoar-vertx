@@ -220,7 +220,6 @@
                 <executions>
                     <execution>
                         <id>cleanUpTestArtifacts</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>clean</goal>
                         </goals>
