@@ -56,7 +56,7 @@ podTemplate(label: 'mvn-with-cache', cloud: 'openshift', inheritFrom: 'jenkins-s
             stage("Build ${env.MODULE}-app Image") {
                 def pomVersion = sh(script: 'mvn -Dexec.executable=\'echo\' -Dexec.args=\'${project.version}\' --non-recursive exec:exec -q',
                         returnStdout: true)
-                sh "oc start-build ${env.MODULE}-app --from-file=target/${env.MODULE}-${pomVersion}.jar"
+                sh "oc start-build ${env.MODULE}-app --from-file='target/${env.MODULE}-${pomVersion}.jar'"
             }
         }
     }
