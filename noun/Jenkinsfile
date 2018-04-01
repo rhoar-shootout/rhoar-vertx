@@ -32,7 +32,7 @@ node (''){
     env.MODULE = "noun"
 }
 
-def podLabel = "mvn-with-cache-${env.JOB_NAME}-${env.BUILD_NUMBER}"
+def podLabel = "mvn-with-cache-${env.MODULE}-${env.BUILD_NUMBER}"
 
 podTemplate(label: podLabel, cloud: 'openshift', inheritFrom: 'jenkins-slave-mvn', volumes: [
         persistentVolumeClaim(claimName: 'mvn-cache-pv', mountPath: '/home/jenkins/.m2')
