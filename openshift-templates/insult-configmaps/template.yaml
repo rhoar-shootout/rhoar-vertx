@@ -1,0 +1,54 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  template: insult-configmaps
+metadata:
+  annotations:
+    description: A template for creating configmaps for the Elizabethan Insult app
+    iconClass: icon-vertx
+    openshift.io/display-name: Vert.x App (k8s API)
+    tags: vertx,http,k8s,kubernetes
+  name: insult-configmaps
+objects:
+- apiVersion: v1
+  data:
+    http: |-
+      {
+          "port": 8080,
+          "host": "0.0.0.0"
+      }
+  kind: ConfigMap
+  metadata:
+    name: adjective-config
+- apiVersion: v1
+  data:
+    http: |-
+      {
+          "port": 8080,
+          "host": "0.0.0.0"
+      }
+  kind: ConfigMap
+  metadata:
+    name: noun-config
+- apiVersion: v1
+  data:
+    noun: |-
+      {
+          "port": 8080,
+          "host": "noun"
+      }
+    adjective: |-
+      {
+          "port": 8080,
+          "host": "adjective"
+      }
+    http: |-
+      {
+        "port": 8080,
+        "host": "0.0.0.0",
+        "cors": "https?://(.*\\.rht-labs\\.com)(:[0-9]*)?(/.*)?"
+      }
+  kind: ConfigMap
+  metadata:
+    name: insult-config
+
