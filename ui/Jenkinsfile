@@ -32,8 +32,10 @@ node (''){
     env.MODULE = "ui"
 }
 
-podTemplate(label: 'mvn-with-cache', cloud: 'openshift', volumes: [
-        persistentVolumeClaim(claimName: 'mvn-cache-pv', mountPath: '/home/jenkins/.m2')
+podTemplate(label: 'mvn-with-cache', cloud: 'openshift', containers: [
+    containerTemplate(name: 'mvn-slave', ttyEnabled: true, image: 'docker-registry.default.svc:5000/rhoar-vertx-ci-cd/jenkins-slave-mvn:latest')
+], volumes: [
+    persistentVolumeClaim(claimName: 'mvn-cache-pv', mountPath: '/home/jenkins/.m2')
 ]) {
 
     /**
