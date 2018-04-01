@@ -57,7 +57,7 @@ podTemplate(label: 'mvn-with-cache', cloud: 'openshift', inheritFrom: 'jenkins-s
                 def pomVersion = sh(script: 'mvn -Dexec.executable=\'echo\' -Dexec.args=\'${project.version}\' --non-recursive exec:exec -q',
                         returnStdout: true)
                 sh "oc start-build ${env.MODULE}-app --from-file='target/${env.MODULE}-${pomVersion.trim()}.jar'"
-                openshiftVerifyBuild(buildConfig: "${env.MODULE}-app", waitTime: 5)
+                openshiftVerifyBuild(buildConfig: "${env.MODULE}-app", waitTime: (5*1000*60*5))
             }
         }
     }
