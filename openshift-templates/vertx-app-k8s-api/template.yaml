@@ -149,4 +149,4 @@ parameters:
   displayName: HTTP Health Path
   name: APP_HEALTH_PATH
   required: true
-  value: "/health"
+  value: "/api/v1/health"
