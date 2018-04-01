@@ -32,7 +32,9 @@ node (''){
     env.MODULE = "insult"
 }
 
-podTemplate(label: 'mvn-with-cache', cloud: 'openshift', inheritFrom: 'jenkins-slave-mvn', volumes: [
+def podLabel = "mvn-with-cache-${env.JOB_NAME}-${env.BUILD_NUMBER}"
+
+podTemplate(label: podLabel, cloud: 'openshift', inheritFrom: 'jenkins-slave-mvn', volumes: [
         persistentVolumeClaim(claimName: 'mvn-cache-pv', mountPath: '/home/jenkins/.m2')
 ]) {
 
@@ -40,7 +42,7 @@ podTemplate(label: 'mvn-with-cache', cloud: 'openshift', inheritFrom: 'jenkins-s
      this section of the pipeline executes on a custom mvn build slave.
      you should not need to change anything below unless you need new stages or new integrations (e.g. Cucumber Reports or Sonar)
      **/
-    node("mvn-with-cache") {
+    node(podLabel) {
 
         stage('SCM Checkout') {
             checkout scm
