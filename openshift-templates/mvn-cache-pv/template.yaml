@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: "true"
+objects:
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: mvn-cache-pv
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 5Gi
