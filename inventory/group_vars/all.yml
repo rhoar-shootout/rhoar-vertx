@@ -45,6 +45,11 @@ openshift_cluster_content:
     - zap-slave
 - object: ci-cd-deployments
   content:
+  - name: maven-cache-volume
+    template: "{{ inventory_dir }}/../openshift-templates/mvn-cache-pv/template.yaml"
+    namespace: rhoar-vertx-ci-cd
+    tags:
+    - jenkins
   - name: sonarqube-postgresql
     template: "openshift//postgresql-persistent"
     params: "{{ inventory_dir }}/../params/sonarqube/postgresql"
