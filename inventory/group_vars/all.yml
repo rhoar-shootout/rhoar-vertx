@@ -47,7 +47,7 @@ openshift_cluster_content:
   content:
   - name: maven-cache-volume
     template: "{{ inventory_dir }}/../openshift-templates/mvn-cache-pv/template.yaml"
-    params: "{{ inventory_dir }}/../params/mvn-cache-volume/deploy"
+    params: "{{ inventory_dir }}/../params/maven-cache-volume/deploy"
     namespace: rhoar-vertx-ci-cd
     tags:
     - jenkins
@@ -148,7 +148,7 @@ openshift_cluster_content:
     tags:
     - apps-config
   - name: adjective-app
-    template: "{{ inventory_dir }}/../openrhoar-vertx-demoshift-templates/vertx-app-k8s-api/template.yaml"
+    template: "{{ inventory_dir }}/../openshift-templates/vertx-app-k8s-api/template.yaml"
     params: "{{ inventory_dir }}/../params/adjective-app/deploy_demo"
     namespace: rhoar-vertx-demo
     tags:
