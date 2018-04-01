@@ -32,28 +32,32 @@ node (''){
     env.MODULE = "adjective"
 }
 
+podTemplate(label: 'mvn-with-cache', volumes: [
+    persistentVolumeClaim(claimName: 'mvn-cache-pv', mountPath: '/home/jenkins/.m2')
+]) {
 
-/**
- this section of the pipeline executes on a custom mvn build slave.
- you should not need to change anything below unless you need new stages or new integrations (e.g. Cucumber Reports or Sonar)
- **/
-node("jenkins-slave-mvn") {
+    /**
+     this section of the pipeline executes on a custom mvn build slave.
+     you should not need to change anything below unless you need new stages or new integrations (e.g. Cucumber Reports or Sonar)
+     **/
+    node("mvn-with-cache") {
 
-    stage('SCM Checkout') {
-        checkout scm
-    }
-
-    dir("${env.MODULE}") {
-        stage("Build ${env.MODULE}-app JAR files and perform SonarQube Analysis") {
-            withSonarQubeEnv {
-                sh "${env.BUILD_COMMAND}"
-            }
+        stage('SCM Checkout') {
+            checkout scm
         }
 
-        stage("Build ${env.MODULE}-app Image") {
-            def pomVersion = sh(script: 'mvn -Dexec.executable=\'echo\' -Dexec.args=\'${project.version}\' --non-recursive exec:exec -q',
-                    returnStdout: true)
-            sh "oc start-build ${env.MODULE}-app --from-file=target/${env.MODULE}-${pomVersion}.jar"
+        dir("${env.MODULE}") {
+            stage("Build ${env.MODULE}-app JAR files and perform SonarQube Analysis") {
+                withSonarQubeEnv {
+                    sh "${env.BUILD_COMMAND}"
+                }
+            }
+
+            stage("Build ${env.MODULE}-app Image") {
+                def pomVersion = sh(script: 'mvn -Dexec.executable=\'echo\' -Dexec.args=\'${project.version}\' --non-recursive exec:exec -q',
+                        returnStdout: true)
+                sh "oc start-build ${env.MODULE}-app --from-file=target/${env.MODULE}-${pomVersion}.jar"
+            }
         }
     }
 }
