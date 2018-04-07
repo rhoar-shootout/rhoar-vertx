@@ -129,7 +129,6 @@ public class MainVerticle extends AbstractVerticle {
 
     /**
      * Begin the creation of the {@link OpenAPI3RouterFactory}
-     * @param v A Void for continuity in the async compoprovisionedsition
      * @return An {@link OpenAPI3RouterFactory} {@link Future} to be used to complete the next Async step
      */
     private Future<OpenAPI3RouterFactory> provisionRouter() {
@@ -155,6 +154,11 @@ public class MainVerticle extends AbstractVerticle {
      * @return The {@link HttpServer} instance created
      */
     private Future<HttpServer> createHttpServer(OpenAPI3RouterFactory factory) {
+        Router baseRouter = Router.router(vertx);
+        baseRouter.route().handler(ctx -> {
+            LOG.info(ctx.request().path());
+            ctx.next();
+        });
         factory.addHandlerByOperationId("getNoun",
             ctx -> service.get(
                 res -> handleResponse(ctx, OK, res)));
@@ -167,9 +171,10 @@ public class MainVerticle extends AbstractVerticle {
             .getOrCreateContext()
             .config()
             .getJsonObject("http");
+        baseRouter.mountSubRouter("/api/v1", factory.getRouter());
         HttpServerOptions httpConfig = new HttpServerOptions(httpJsonCfg);
         vertx.createHttpServer(httpConfig)
-            .requestHandler(factory.getRouter()::accept)
+            .requestHandler(baseRouter::accept)
             .listen(future.completer());
         return future;
     }
