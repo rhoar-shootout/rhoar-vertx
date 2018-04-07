@@ -1,2 +1,3 @@
 PIPELINES_NAMESPACE=rhoar-vertx-ci-cd
 NAME=ui-app
+APP_HEALTH_PATH=/
