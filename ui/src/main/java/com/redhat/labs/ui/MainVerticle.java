@@ -24,7 +24,7 @@ public class MainVerticle extends AbstractVerticle {
         // Check to see if we are running on Kubernetes/OCP
         if (System.getenv().containsKey("KUBERNETES_NAMESPACE")) {
             router.route("/statics/js/settings.js").handler(this::getConfig);
-            router.route().handler(StaticHandler.create("webroot"));
+            router.route().handler(StaticHandler.create("webroot").setIndexPage("index.html"));
 
             ConfigStoreOptions confOpts = new ConfigStoreOptions()
                     .setType("configmap")
@@ -34,7 +34,7 @@ public class MainVerticle extends AbstractVerticle {
                     );
             retrieverOptions.addStore(confOpts);
         } else {
-            router.route().handler(StaticHandler.create("webroot"));
+            router.route().handler(StaticHandler.create("webroot").setIndexPage("index.html"));
         }
 
         ConfigRetriever.create(vertx, retrieverOptions).getConfig(cfgRes -> {
