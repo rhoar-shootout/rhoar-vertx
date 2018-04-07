@@ -41,6 +41,10 @@ node('jenkins-slave-mvn') {
         checkout scm
     }
 
+    stage('Build Vert.x Dependencies') {
+        sh "mvn compile -pl noun,adjective"
+    }
+
     dir("${env.MODULE}") {
         stage("Build ${env.MODULE}-app JAR files and perform SonarQube Analysis") {
             withSonarQubeEnv {
