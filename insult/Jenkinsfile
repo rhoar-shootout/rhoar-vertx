@@ -92,10 +92,8 @@ node('') {
 node('') {
     stage('Promote application to Demo environment') {
         input "Promote Application to Demo?"
-        modules.each {
-            openshiftTag(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "${env.MODULE}-app", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEMO_PROJECT}", namespace: "${env.DEV_PROJECT}", srcStream: "${env.MODULE}-app", srcTag: 'latest')
+        openshiftTag(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", destStream: "${env.MODULE}-app", destTag: 'latest', destinationAuthToken: "${env.OCP_TOKEN}", destinationNamespace: "${env.DEMO_PROJECT}", namespace: "${env.DEV_PROJECT}", srcStream: "${env.MODULE}-app", srcTag: 'latest')
 
-            openshiftVerifyDeployment(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "${env.MODULE}-app", namespace: "${env.DEMO_PROJECT}", verifyReplicaCount: true)
-        }
+        openshiftVerifyDeployment(apiURL: "${env.OCP_API_SERVER}", authToken: "${env.OCP_TOKEN}", depCfg: "${env.MODULE}-app", namespace: "${env.DEMO_PROJECT}", verifyReplicaCount: true)
     }
 }
