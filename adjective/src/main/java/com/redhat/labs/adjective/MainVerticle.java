@@ -70,7 +70,7 @@ public class MainVerticle extends AbstractVerticle {
                                             .addStore(defaultOpts);
 
         // Check to see if we are running on Kubernetes/OCP
-        if (System.getenv().containsKey("KUBERNETES_PORT")) {
+        if (System.getenv().containsKey("KUBERNETES_NAMESPACE")) {
 
             ConfigStoreOptions confOpts = new ConfigStoreOptions()
                     .setType("configmap")
