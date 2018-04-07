@@ -36,11 +36,11 @@ import static io.vertx.core.http.HttpMethod.POST;
 
 public class MainVerticle extends AbstractVerticle {
 
-    private final Logger LOG = LoggerFactory.getLogger(MainVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MainVerticle.class);
 
-    public static final String INSULT_SERVICE = "insult.service";
+    private static final String INSULT_SERVICE = "insult.service";
 
-    InsultService service;
+    private InsultService service;
 
     /**
      * Entry point for {@link MainVerticle}

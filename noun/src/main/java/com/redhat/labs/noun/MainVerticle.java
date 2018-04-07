@@ -38,7 +38,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
 public class MainVerticle extends AbstractVerticle {
 
-    private final Logger LOG = LoggerFactory.getLogger(MainVerticle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MainVerticle.class);
 
     private NounService service;
 
@@ -183,7 +183,7 @@ public class MainVerticle extends AbstractVerticle {
      * Wrapper which extracts the POST body and makes the service call to save a new Noun
      * @param ctx The {@link RoutingContext} of the request.
      */
-    void handleSaveRequest(RoutingContext ctx) {
+    private void handleSaveRequest(RoutingContext ctx) {
         RequestParameters params = ctx.get("parsedParameters");
         RequestParameter bodyParam = params.body();
         JsonObject data = bodyParam.getJsonObject();
