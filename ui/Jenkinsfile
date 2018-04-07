@@ -31,39 +31,32 @@ node (''){
 
     env.MODULE = "ui"
 }
+/**
+ this section of the pipeline executes on a custom mvn build slave.
+ you should not need to change anything below unless you need new stages or new integrations (e.g. Cucumber Reports or Sonar)
+ **/
+node('jenkins-slave-mvn') {
 
-def podLabel = "mvn-with-cache-${env.MODULE}-${env.BUILD_NUMBER}"
+    stage('SCM Checkout') {
+        checkout scm
+    }
 
-podTemplate(label: podLabel, cloud: 'openshift', inheritFrom: 'jenkins-slave-mvn', volumes: [
-    persistentVolumeClaim(claimName: 'mvn-cache-pv', mountPath: '/home/jenkins/.m2')
-]) {
-
-    /**
-     this section of the pipeline executes on a custom mvn build slave.
-     you should not need to change anything below unless you need new stages or new integrations (e.g. Cucumber Reports or Sonar)
-     **/
-    node(podLabel) {
-
-        stage('SCM Checkout') {
-            checkout scm
+    dir("${env.MODULE}") {
+        stage("Build ${env.MODULE}-app JAR files and perform SonarQube Analysis") {
+            withSonarQubeEnv {
+                sh "${env.BUILD_COMMAND}"
+            }
         }
 
-        dir("${env.MODULE}") {
-            stage("Build ${env.MODULE}-app JAR files and perform SonarQube Analysis") {
-                withSonarQubeEnv {
-                    sh "${env.BUILD_COMMAND}"
-                }
-            }
-
-            stage("Build ${env.MODULE}-app Image") {
-                def pomVersion = sh(script: 'mvn -Dexec.executable=\'echo\' -Dexec.args=\'${project.version}\' --non-recursive exec:exec -q',
-                        returnStdout: true)
-                sh "oc start-build ${env.MODULE}-app --from-file='target/${env.MODULE}-${pomVersion.trim()}.jar'"
-                openshiftVerifyBuild(buildConfig: "${env.MODULE}-app", waitTime: (5*1000*60*5))
-            }
+        stage("Build ${env.MODULE}-app Image") {
+            def pomVersion = sh(script: 'mvn -Dexec.executable=\'echo\' -Dexec.args=\'${project.version}\' --non-recursive exec:exec -q',
+                    returnStdout: true)
+            sh "oc start-build ${env.MODULE}-app --from-file='target/${env.MODULE}-${pomVersion.trim()}.jar'"
+            openshiftVerifyBuild(buildConfig: "${env.MODULE}-app", waitTime: (5*1000*60*5))
         }
     }
 }
+
 
 node('') {
     // no user changes should be needed below this point
