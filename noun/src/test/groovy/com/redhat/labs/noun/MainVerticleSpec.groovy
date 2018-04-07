@@ -29,7 +29,7 @@ class MainVerticleSpec extends Specification {
         and: "An instance of AsyncConditions"
             def async = new AsyncConditions(2)
         when: "An HTTP request is made to the noun service"
-            client.getNow("/noun", { res ->
+            client.getNow("/api/v1/noun", { res ->
                 async.evaluate {
                     res.statusCode() == 200
                     res.bodyHandler({ bodyRes ->
@@ -51,7 +51,7 @@ class MainVerticleSpec extends Specification {
             def async = new AsyncConditions(2)
 
         when: "An HTTP request is made to the noun service"
-            client.getNow("/health", { res ->
+            client.getNow("/api/v1/health", { res ->
                 async.evaluate {
                     res.statusCode() == 200
                     res.bodyHandler({ bodyRes ->
