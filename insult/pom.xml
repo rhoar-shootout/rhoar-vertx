@@ -13,8 +13,6 @@
 
     <properties>
         <vertx.verticle>com.redhat.labs.insult.MainVerticle</vertx.verticle>
-        <sonar.sources>src/main/frontend</sonar.sources>
-        <sonar.language>js</sonar.language>
     </properties>
 
     <dependencies>
