@@ -89,13 +89,13 @@ public class InsultServiceImpl implements InsultService {
     public void namedInsult(String name, Handler<AsyncResult<JsonObject>> resultHandler) {
 
         Future<String> nounFuture = Future.future();
-        nounBreaker.<String>execute(f -> makeRestCall(nounCfg, "/noun", f)).setHandler(nounFuture.completer());
+        nounBreaker.<String>execute(f -> makeRestCall(nounCfg, "/api/v1/noun", f)).setHandler(nounFuture.completer());
 
         Future<String> adj1Future = Future.future();
-        adjBreaker.<String>execute(f -> makeRestCall(adjCfg, "/adjective", f)).setHandler(adj1Future.completer());
+        adjBreaker.<String>execute(f -> makeRestCall(adjCfg, "/api/v1/adjective", f)).setHandler(adj1Future.completer());
 
         Future<String> adj2Future = Future.future();
-        adjBreaker.<String>execute(f -> makeRestCall(adjCfg, "/adjective", f)).setHandler(adj2Future.completer());
+        adjBreaker.<String>execute(f -> makeRestCall(adjCfg, "/api/v1/adjective", f)).setHandler(adj2Future.completer());
 
         CompositeFuture.join(nounFuture, adj1Future, adj2Future).setHandler(res -> {
             JsonObject response = new JsonObject();
