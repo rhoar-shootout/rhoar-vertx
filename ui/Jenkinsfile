@@ -54,6 +54,7 @@ node('jenkins-slave-mvn') {
             withSonarQubeEnv {
                 sh "${env.BUILD_COMMAND}"
             }
+            sh "jar -tvf target/ui-1.0.0-SNAPSHOT.jar"
         }
 
         stage("Build ${env.MODULE}-app Image") {
