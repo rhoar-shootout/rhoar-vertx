@@ -35,12 +35,12 @@ objects:
     noun: |-
       {
           "port": 8080,
-          "host": "noun"
+          "host": "noun-app"
       }
     adjective: |-
       {
           "port": 8080,
-          "host": "adjective"
+          "host": "adjective-app"
       }
     http: |-
       {
@@ -51,4 +51,16 @@ objects:
   kind: ConfigMap
   metadata:
     name: insult-config
+- apiVersion: v1
+  data:
+    settings.js: |-
+      var loc_proto = window.location.protocol;
+      var loc_host = window.location.hostname.replace(/^ui/, 'insult');
+      var loc_port = window.location.port;
+
+      if (loc_port === "") {
+          window.base_url = loc_proto + "//" + loc_host;
+      } else {
+          window.base_url = loc_proto + "//" + loc_host + ":" + loc_port;
+      }
 
