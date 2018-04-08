@@ -54,8 +54,6 @@ node('jenkins-slave-mvn') {
             withSonarQubeEnv {
                 sh "${env.BUILD_COMMAND}"
             }
-            sh "jar -tvf target/ui-1.0.0-SNAPSHOT.jar"
-            input "Finished debugging?"
         }
 
         stage("Build ${env.MODULE}-app Image") {
