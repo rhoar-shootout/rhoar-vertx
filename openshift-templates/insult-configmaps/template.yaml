@@ -63,4 +63,6 @@ objects:
       } else {
           window.base_url = loc_proto + "//" + loc_host + ":" + loc_port;
       }
-
+  kind: ConfigMap
+  metadata:
+    name: ui-config
