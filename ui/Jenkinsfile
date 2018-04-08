@@ -55,7 +55,7 @@ node('jenkins-slave-mvn') {
                 sh "${env.BUILD_COMMAND}"
             }
             sh "jar -tvf target/ui-1.0.0-SNAPSHOT.jar"
-            sleep time: 20, unit: 'min'
+            sleep time: 20, unit: MINUTES
         }
 
         stage("Build ${env.MODULE}-app Image") {
