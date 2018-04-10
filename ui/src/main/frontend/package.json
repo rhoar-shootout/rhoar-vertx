@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "description": "Elixzabethan Insult App",
   "author": "Deven Phillips <deven.phillips@redhat.com>",
+  "repository": "git@github.com:rhoar-shootout/rhoar-vertx.git",
+  "license": "Apache-2.0",
   "scripts": {
     "clean": "node build/script.clean.js",
     "dev": "node build/script.dev.js",
