@@ -4,5 +4,5 @@
 # dependencies to support this inventory
 
 # From 'rht-labs/labs-ci-cd'
-- src: https://github.com/rht-labs/labs-ci-cd
-  version: master
+- src: https://github.com/rhoar-shootout/rhoar-vertx
+  version: ci-cd
