@@ -42,7 +42,9 @@ objects:
         - image: ${NAME}
           env:
           - name: KUBERNETES_NAMESPACE
-            value: KUBERNETES_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -153,8 +155,3 @@ parameters:
   name: APP_HEALTH_PATH
   required: true
   value: "/api/v1/health"
-- description: The Kubernetes Namespace/OpenShift Project
-  displayName: Namespace
-  name: KUBERNETES_NAMESPACE
-  value: metadata.namespace
-  required: true
