@@ -13,4 +13,6 @@ nexus_repos:
 - script_name: redhat-repos
   script_file: ../files/redhat-repos.json
 - script_name: labs-repos
-  script_file: ../files/labs-repos.json  
+  script_file: ../files/labs-repos.json
+- script_name: nist-cve
+  script_file: ../files/nist-cve.json
