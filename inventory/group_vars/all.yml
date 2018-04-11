@@ -70,7 +70,7 @@ openshift_cluster_content:
     tags:
     - nexus
     post_steps:
-    - role: "labs-ci-cd/roles/configure-nexus"
+    - role: "rhoar-vertx/roles/configure-nexus"
   - name: sonarqube
     template: "{{ inventory_dir }}/../openshift-templates/sonarqube/template.json"
     params: "{{ inventory_dir }}/../params/sonarqube/build-and-deploy"
