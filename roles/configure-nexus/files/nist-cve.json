@@ -1,5 +1,5 @@
 {
-  "name": "labs-repos",
+  "name": "nist-cve",
   "type": "groovy",
   "content": "import org.sonatype.nexus.blobstore.api.BlobStoreManager; import org.sonatype.nexus.repository.maven.LayoutPolicy; import org.sonatype.nexus.repository.maven.VersionPolicy; import org.sonatype.nexus.repository.storage.WritePolicy; if ( !repository.repositoryManager.exists( 'NIST' )) { repository.createRawProxy( 'NIST', 'https://nvd.nist.gov/feeds/xml/cve/', BlobStoreManager.DEFAULT_BLOBSTORE_NAME, false);}"
 }
