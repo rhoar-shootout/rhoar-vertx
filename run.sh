@@ -47,6 +47,8 @@ fi
 
 docker run --rm -i \
     -w /tmp/src \
+    --dns=8.8.8.8 \
+    --dns-search=rht-labs.com \
     -v $(pwd):/tmp/src:z \
     -v $HOME/.kube:/root/.kube:z \
     -t redhatcop/openshift-applier \
