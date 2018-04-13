@@ -122,9 +122,7 @@ public class MainVerticle extends AbstractVerticle {
         });
         @Nullable JsonObject config = vertx.getOrCreateContext().config();
         CorsHandler corsHandler = CorsHandler.create("*")
-                .allowCredentials(true)
                 .allowedHeader("Access-Control-Request-Method")
-                .allowedHeader("Access-Control-Allow-Credentials")
                 .allowedHeader("Access-Control-Allow-Origin")
                 .allowedHeader("Access-Control-Allow-Headers")
                 .allowedHeader("Content-Type")
