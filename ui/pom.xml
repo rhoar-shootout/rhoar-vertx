@@ -15,7 +15,7 @@
 
     <properties>
         <vertx.verticle>com.redhat.labs.ui.MainVerticle</vertx.verticle>
-        <sonar.exclusions>src/main/frontend/src/assets/js/**,src/main/frontend/config/**,src/main/frontend/build/**,src/main/frontend/node/**,src/main/frontend/node_modules/**,src/main/frontend/dist/**</sonar.exclusions>
+        <sonar.exclusions>**/frontend/src/assets/js/**/*,**/frontend/config/**/*,**/frontend/build/**/*,**/frontend/node/**/*,**/node_modules/**/*,**/frontend/dist/**/*</sonar.exclusions>
         <sonar.language>js</sonar.language>
         <sonar.sources>src/main/frontend</sonar.sources>
     </properties>
