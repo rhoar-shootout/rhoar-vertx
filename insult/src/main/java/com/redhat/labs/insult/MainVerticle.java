@@ -30,9 +30,7 @@ import io.vertx.serviceproxy.ServiceBinder;
 import java.util.Arrays;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
-import static io.vertx.core.http.HttpMethod.CONNECT;
-import static io.vertx.core.http.HttpMethod.GET;
-import static io.vertx.core.http.HttpMethod.POST;
+import static io.vertx.core.http.HttpMethod.*;
 
 public class MainVerticle extends AbstractVerticle {
 
@@ -132,6 +130,8 @@ public class MainVerticle extends AbstractVerticle {
                 .allowedHeader("Content-Type")
                 .allowedMethod(GET)
                 .allowedMethod(POST)
+                .allowedMethod(UPGRADE)
+                .allowedMethod(OPTIONS)
                 .allowedMethod(CONNECT);
         baseRouter.route().handler(corsHandler);
         factory.addHandlerByOperationId("getInsult", ctx -> service.getInsult(result -> handleResponse(ctx, OK, result)));
