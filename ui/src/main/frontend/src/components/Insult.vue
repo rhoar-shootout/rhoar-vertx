@@ -11,8 +11,8 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-12" style="padding-top: 20px">
-        <q-toggle color="red" v-model="isReactiveEnabled"><div class="margined">Use WebSockets</div></q-toggle>
+      <div class="col-12">
+        <q-toggle left-label v-model="isReactiveEnabled" color="yellow" :label="connStatus"></q-toggle>
       </div>
     </div>
   </div>
@@ -51,6 +51,13 @@ export default {
               return "ME";
           } else {
               return this.nameInput;
+          }
+      },
+      connStatus() {
+          if (this.isReactiveEnabled) {
+              return "WebSockets";
+          } else {
+              return "REST";
           }
       }
   },
@@ -146,4 +153,5 @@ export default {
   flex: auto
 .margined
   padding-left: 3px
+  width: 120px
 </style>

@@ -97,7 +97,7 @@ class MainVerticleSpec extends Specification {
         and: "An instance of AsyncConditions"
             AsyncConditions async = new AsyncConditions(2)
         and: "A request with the correct headers"
-            def req = client.get(8080, "localhost", "/api/v1/insult")
+            def req = client.get(8081, "localhost", "/api/v1/insult")
             req.putHeader("Origin", "http://localhost:8081")
         when: "An insult is requested"
             req.handler({ res ->
@@ -130,7 +130,7 @@ class MainVerticleSpec extends Specification {
         and: "A POST body of JSON"
             def body = new JsonObject(['name': 'Deven'])
         and: "A request with the correct headers"
-            def req = client.post(8080, "localhost", "/api/v1/insult")
+            def req = client.post(8081, "localhost", "/api/v1/insult")
             req.putHeader("Origin", "http://localhost:8081")
             req.putHeader("Content-Type", "application/json")
             req.putHeader("Content-Length", "${body.encodePrettily().getBytes("UTF-8").length}")
