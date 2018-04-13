@@ -103,7 +103,7 @@ class MainVerticleSpec extends Specification {
             req.handler({ res ->
                 async.evaluate {
                     res.statusCode() == 200
-                    res.getHeader("Access-Control-Allow-Origin").startsWith("http://localhost:8081")
+                    res.getHeader("Access-Control-Allow-Origin") == '*'
                     res.bodyHandler({  b ->
                         async.evaluate {
                             def body = b.toJsonObject()
@@ -138,7 +138,7 @@ class MainVerticleSpec extends Specification {
             req.handler({ res ->
                 async.evaluate {
                     res.statusCode() == 201
-                    res.getHeader("Access-Control-Allow-Origin").startsWith("http://localhost:8081")
+                    res.getHeader("Access-Control-Allow-Origin") == '*'
                     res.bodyHandler({ b ->
                         async.evaluate {
                             def responseBody = b.toJsonObject()
