@@ -130,7 +130,8 @@ public class MainVerticle extends AbstractVerticle {
                 .allowedHeader("Content-Type")
                 .allowedMethod(GET)
                 .allowedMethod(POST)
-                .allowedMethod(UPGRADE)
+                .allowedMethod(HEAD)
+                .allowedMethod(PUT)
                 .allowedMethod(OPTIONS)
                 .allowedMethod(CONNECT);
         baseRouter.route().handler(corsHandler);
