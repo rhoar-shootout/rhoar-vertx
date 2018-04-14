@@ -53,6 +53,7 @@ And the start-up flow for the Adjective and Noun services is diagrammed as well:
 ### Prerequisites
 * Java 8
 * Apache Maven >= 3.5.0
+* Git
 * [OpenShift Command Line Tools](https://github.com/openshift/origin/releases) (Optional)
 * [MiniShift](https://github.com/minishift/minishift/releases) (Optional)
 * [OpenShift](https://github.com/openshift/origin) (Optional)
@@ -63,6 +64,7 @@ And the start-up flow for the Adjective and Noun services is diagrammed as well:
 > will cause a recompile and redeploy automatically. This allows you to do quick near-realtime 
 > development work
 ```
+git clone https://github.com/rhoar-shootout/rhoar-vertx.git
 mvn -T 5 clean compile vertx:run
 ```
 
