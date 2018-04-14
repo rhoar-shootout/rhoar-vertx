@@ -97,3 +97,7 @@ git checkout ci-cd
 oc login <Your OpenShift Cluster Master>
 ./run.sh
 ```
+
+> You COULD potentially deploy the full CI/CD pipeline on MiniShift if you have 
+> a sufficiently powerful computer, but realize that this deployment usually
+> takes up enough resources for a server-grade system
