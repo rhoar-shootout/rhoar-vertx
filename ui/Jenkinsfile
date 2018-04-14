@@ -22,7 +22,7 @@ node (''){
 
     // the complete build command
     // depending on the slave, you may need to wrap this command with scl enable
-    env.BUILD_COMMAND = "mvn clean compile process-resources package dependency-check:check sonar:sonar vertx:package"
+    env.BUILD_COMMAND = "mvn clean compile process-resources package dependency-check:check sonar:sonar vertx:package -Dnist.cvedata=http://nexus-rhoar-vertx-ci-cd.apps.s8.core.rht-labs.com/repository/NIST/"
 
     // these are defaults that will help run openshift automation
     // DO NOT DELETE THESE - they are required
@@ -50,6 +50,7 @@ node('jenkins-slave-mvn') {
             withSonarQubeEnv {
                 sh "${env.BUILD_COMMAND}"
             }
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: '/target/', reportFiles: 'dependency-check-report.html', reportName: 'OWASP Dependency Check', reportTitles: 'OWASP Dependency Check'])
         }
 
         stage("Build ${env.MODULE}-app Image") {

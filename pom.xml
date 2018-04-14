@@ -14,7 +14,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <vertx.version>3.5.1</vertx.version>
         <fabric8-vertx-maven-plugin.version>1.0.13</fabric8-vertx-maven-plugin.version>
-        <nexus.nist.proxy>http://nexus:8081/repository/NIST/</nexus.nist.proxy>
+        <nist.cvedata>https://nvd.nist.gov/feeds/xml/cve/</nist.cvedata>
     </properties>
 
     <dependencyManagement>
@@ -90,10 +90,10 @@
                     <artifactId>dependency-check-maven</artifactId>
                     <version>3.1.1</version>
                     <configuration>
-                        <cveUrl20Modified>${nexus.nist.proxy}2.0/nvdcve-2.0-modified.xml.gz</cveUrl20Modified>
-                        <cveUrl20Base>${nexus.nist.proxy}2.0/nvdcve-2.0-%d.xml.gz</cveUrl20Base>
-                        <cveUrl12Modified>${nexus.nist.proxy}1.2/nvdcve-modified.xml.gz</cveUrl12Modified>
-                        <cveUrl12Base>${nexus.nist.proxy}1.2/nvdcve-%d.xml.gz</cveUrl12Base>
+                        <cveUrl20Modified>${nist.cvedata}2.0/nvdcve-2.0-modified.xml.gz</cveUrl20Modified>
+                        <cveUrl20Base>${nist.cvedata}2.0/nvdcve-2.0-%d.xml.gz</cveUrl20Base>
+                        <cveUrl12Modified>${nist.cvedata}1.2/nvdcve-modified.xml.gz</cveUrl12Modified>
+                        <cveUrl12Base>${nist.cvedata}1.2/nvdcve-%d.xml.gz</cveUrl12Base>
                     </configuration>
                 </plugin>
                 <plugin>
