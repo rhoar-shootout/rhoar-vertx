@@ -84,7 +84,7 @@ public class AdjectiveServiceImpl implements AdjectiveService {
             SQLConnection conn = connRes.result();
             JsonArray params = new JsonArray().add(adjective);
             conn.queryWithParams("INSERT INTO adjectives (adjective) VALUES (?)",
-                    params, queryRes -> handleQueryResult(adjective, resultHandler, queryRes));
+                    params, queryRes -> handleInsertResult(adjective, resultHandler, queryRes));
         } else {
             resultHandler.handle(Future.failedFuture(connRes.cause()));
         }
@@ -96,7 +96,7 @@ public class AdjectiveServiceImpl implements AdjectiveService {
      * @param resultHandler The callback to be used once the operation is complete
      * @param queryRes The results of the SQL query
      */
-    void handleQueryResult(String adjective, Handler<AsyncResult<String>> resultHandler, AsyncResult<ResultSet> queryRes) {
+    void handleInsertResult(String adjective, Handler<AsyncResult<String>> resultHandler, AsyncResult<ResultSet> queryRes) {
         if (queryRes.succeeded()) {
             JsonObject result = new JsonObject()
                     .put("url", String.format("/rest/v1/adjective/%s", adjective));
@@ -115,21 +115,23 @@ public class AdjectiveServiceImpl implements AdjectiveService {
         if (connRes.succeeded()) {
             LOG.debug("DB connection retrieved");
             SQLConnection conn = connRes.result();
-            conn.query("SELECT adjective FROM adjectives ORDER BY RAND() LIMIT 1", queryRes -> {
-                LOG.debug("DB Query complete");
-                if (queryRes.succeeded()) {
-                    LOG.debug("Got adjective from DB");
-                    ResultSet resultSet = queryRes.result();
-                    JsonObject result = resultSet.getRows().get(0);
-                    resultHandler.handle(Future.succeededFuture(result.encodePrettily()));
-                    connRes.result().close();
-                } else {
-                    LOG.debug("Failed to get adjective from DB");
-                    resultHandler.handle(Future.failedFuture(queryRes.cause()));
-                }
-            });
+            conn.query("SELECT adjective FROM adjectives ORDER BY RAND() LIMIT 1", queryRes -> handleQueryResult(resultHandler, connRes, queryRes));
         } else {
             resultHandler.handle(Future.failedFuture(connRes.cause()));
+        }
+    }
+
+    private void handleQueryResult(Handler<AsyncResult<String>> resultHandler, AsyncResult<SQLConnection> connRes, AsyncResult<ResultSet> queryRes) {
+        LOG.debug("DB Query complete");
+        if (queryRes.succeeded()) {
+            LOG.debug("Got adjective from DB");
+            ResultSet resultSet = queryRes.result();
+            JsonObject result = resultSet.getRows().get(0);
+            resultHandler.handle(Future.succeededFuture(result.encodePrettily()));
+            connRes.result().close();
+        } else {
+            LOG.debug("Failed to get adjective from DB");
+            resultHandler.handle(Future.failedFuture(queryRes.cause()));
         }
     }
 

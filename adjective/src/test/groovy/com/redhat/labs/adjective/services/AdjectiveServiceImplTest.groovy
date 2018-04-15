@@ -6,6 +6,7 @@ import io.vertx.core.impl.ContextImpl
 import io.vertx.core.impl.VertxImpl
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.jdbc.impl.JDBCClientImpl
+import io.vertx.ext.sql.ResultSet
 import io.vertx.ext.sql.SQLConnection
 import spock.lang.Specification
 
@@ -77,5 +78,67 @@ class AdjectiveServiceImplTest extends Specification {
         then: "Then we expect the following interactions"
             1 * connRes.succeeded() >> false        // Return false to indicate that the connection failed
             1 * connRes.cause() >> Mock(Throwable)  // Expect that there is a Throwable in the cause
+    }
+
+    def "test handleInsertResult happy path"() {
+        given: "A valid configuration for the Database Client"
+            def configData = new JsonObject(DB_CONFIG_DATA)
+        and: "A mock implementation of the Vert.x context"
+            def context = GroovyMock(ContextImpl) {
+                config() >> configData
+            }
+        and: "A Mock implementation of the VertxImpl"
+            def vertx = GroovySpy(VertxImpl) {
+                getOrCreateContext() >> context
+            }
+        and: "A Mock interceptor for the JDBCClientImpl constructor"
+            GroovyMock(JDBCClientImpl, global: true)
+        and: "An instance of the class under test"
+            def underTest = new AdjectiveServiceImpl(vertx)
+        and:
+            Handler<AsyncResult<String>> resultHandler = { res ->
+                assert res.result() =~ /.*myAdjective.*/
+            }
+        and:
+            AsyncResult<ResultSet> queryRes = Mock(AsyncResult)
+
+        when:
+            underTest.handleInsertResult("myAdjective", resultHandler, queryRes)
+
+        then:
+            1 * queryRes.succeeded() >> true
+    }
+
+    def "test handleInsertResult sad path"() {
+        given: "A valid configuration for the Database Client"
+            def configData = new JsonObject(DB_CONFIG_DATA)
+        and: "A mock implementation of the Vert.x context"
+            def context = GroovyMock(ContextImpl) {
+                config() >> configData
+            }
+        and: "A Mock implementation of the VertxImpl"
+            def vertx = GroovySpy(VertxImpl) {
+                getOrCreateContext() >> context
+            }
+        and: "A Mock interceptor for the JDBCClientImpl constructor"
+            GroovyMock(JDBCClientImpl, global: true)
+        and: "An instance of the class under test"
+            def underTest = new AdjectiveServiceImpl(vertx)
+        and:
+            def error = new Throwable("Test Error")
+        and:
+            Handler<AsyncResult<String>> resultHandler = { res ->
+                assert res.failed()
+                assert res.cause() == error
+            }
+        and:
+            AsyncResult<ResultSet> queryRes = Mock(AsyncResult)
+
+        when:
+            underTest.handleInsertResult("myAdjective", resultHandler, queryRes)
+
+        then:
+            1 * queryRes.succeeded() >> false
+            1 * queryRes.cause() >> error
     }
 }
