@@ -57,13 +57,13 @@
             <dependency>
                 <groupId>org.spockframework</groupId>
                 <artifactId>spock-core</artifactId>
-                <version>1.1-groovy-2.4</version>
+                <version>RELEASE</version>
                 <scope>test</scope>
             </dependency>
-            <dependency> <!-- enables mocking of classes (in addition to interfaces) -->
-                <groupId>cglib</groupId>
-                <artifactId>cglib-nodep</artifactId>
-                <version>3.2.4</version>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
+                <version>1.7.5</version>
                 <scope>test</scope>
             </dependency>
             <dependency> <!-- enables mocking of classes without default constructor (together with CGLIB) -->

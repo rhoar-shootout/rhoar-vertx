@@ -13,37 +13,96 @@ import io.vertx.ext.sql.SQLConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * An implementation of the {@link AdjectiveService} interface.
+ * Provides business logic for getting/setting adjectives for use with the Elizabethan Insult Application
+ */
 public class AdjectiveServiceImpl implements AdjectiveService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdjectiveService.class);
 
     SQLClient client;
 
+    /**
+     * Default constructor which takes the {@link Vertx} instance as it's only parameter
+     * @param vertx The {@link Vertx} instance for the current context
+     */
     public AdjectiveServiceImpl(Vertx vertx) {
         JsonObject dbConfig = vertx.getOrCreateContext().config().getJsonObject("db");
         client = JDBCClient.createShared(vertx, dbConfig, "adjective");
     }
 
+    /* Show how Lambdas are used in a "naive" fashion which can be difficult to read/understand. Nested Lambdas
+     * increase cognitive load and decrease testability
+    @Override
+    public void save(String adjective, Handler<AsyncResult<String>> resultHandler) {
+        client.getConnection(connRes -> {       // This is a non-blocking API call, so we have to use a callback handler
+
+            if (connRes.succeeded()) {          // Check to make sure we successfully got a DB connection
+                SQLConnection conn = connRes.result();
+                JsonArray params = new JsonArray().add(adjective);
+                conn.queryWithParams("INSERT INTO adjectives (adjective) VALUES (?)", params, queryRes -> { // Also a non-blocking
+
+                    if (queryRes.succeeded()) {
+                        JsonObject result = new JsonObject()
+                                .put("url", String.format("/rest/v1/adjective/%s", adjective));
+                        resultHandler.handle(Future.succeededFuture(result.encodePrettily()));
+                    } else {
+                        LOG.error("Failed to successfully execute query to add adjective to the DB", queryRes.cause());
+                        resultHandler.handle(Future.failedFuture(queryRes.cause()));
+                    }
+
+                });
+            } else {
+                LOG.error("Failed to get connection to the database", connRes.cause());
+                resultHandler.handle(Future.failedFuture(connRes.cause()));
+            }
+
+        });
+    }
+     */
+
+    /**
+     * Add a new adjective to the database. This method starts the process of adding a new adjective to the database.
+     * The first step is to create a connection to the database.
+     * @param adjective The adjective to be added
+     * @param resultHandler An instance of {@link Handler} which will be used as a callback upon completion of the operation
+     */
     @Override
     public void save(String adjective, Handler<AsyncResult<String>> resultHandler) {
         client.getConnection(connRes -> saveConnHandler(adjective, resultHandler, connRes));
     }
 
-    private void saveConnHandler(String adjective, Handler<AsyncResult<String>> resultHandler, AsyncResult<SQLConnection> connRes) {
+    /**
+     * Once we have a connection to the database, we send the query
+     * @param adjective The Adjective to be added to the database
+     * @param resultHandler The callback to be used once the operation is complete
+     * @param connRes The result of the request to open a database connection
+     */
+    void saveConnHandler(String adjective, Handler<AsyncResult<String>> resultHandler, AsyncResult<SQLConnection> connRes) {
         if (connRes.succeeded()) {
             SQLConnection conn = connRes.result();
             JsonArray params = new JsonArray().add(adjective);
-            conn.queryWithParams("INSERT INTO adjectives (adjective) VALUES (?)", params, queryRes -> {
-                if (queryRes.succeeded()) {
-                    JsonObject result = new JsonObject()
-                            .put("url", String.format("/rest/v1/adjective/%s", adjective));
-                    resultHandler.handle(Future.succeededFuture(result.encodePrettily()));
-                } else {
-                    resultHandler.handle(Future.failedFuture(queryRes.cause()));
-                }
-            });
+            conn.queryWithParams("INSERT INTO adjectives (adjective) VALUES (?)",
+                    params, queryRes -> handleQueryResult(adjective, resultHandler, queryRes));
         } else {
             resultHandler.handle(Future.failedFuture(connRes.cause()));
+        }
+    }
+
+    /**
+     * Once we have a result from the query, we then process that result and use the callback to return the result
+     * @param adjective The adjective to be added
+     * @param resultHandler The callback to be used once the operation is complete
+     * @param queryRes The results of the SQL query
+     */
+    void handleQueryResult(String adjective, Handler<AsyncResult<String>> resultHandler, AsyncResult<ResultSet> queryRes) {
+        if (queryRes.succeeded()) {
+            JsonObject result = new JsonObject()
+                    .put("url", String.format("/rest/v1/adjective/%s", adjective));
+            resultHandler.handle(Future.succeededFuture(result.encodePrettily()));
+        } else {
+            resultHandler.handle(Future.failedFuture(queryRes.cause()));
         }
     }
 
@@ -52,7 +111,7 @@ public class AdjectiveServiceImpl implements AdjectiveService {
         client.getConnection(connRes -> handleGetConnectionResult(resultHandler, connRes));
     }
 
-    private void handleGetConnectionResult(Handler<AsyncResult<String>> resultHandler, AsyncResult<SQLConnection> connRes) {
+    void handleGetConnectionResult(Handler<AsyncResult<String>> resultHandler, AsyncResult<SQLConnection> connRes) {
         if (connRes.succeeded()) {
             LOG.debug("DB connection retrieved");
             SQLConnection conn = connRes.result();

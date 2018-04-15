@@ -46,7 +46,6 @@ public class MainVerticle extends AbstractVerticle {
      */
     @Override
     public void start(final Future<Void> startFuture) {
-        // ConfigStore from Kube/OCPs
         this.initConfigRetriever()
             .compose(this::provisionRouter)
             .compose(this::createHttpServer)

@@ -13,6 +13,7 @@
 
     <properties>
         <vertx.verticle>com.redhat.labs.insult.MainVerticle</vertx.verticle>
+        <vertx.launcher>com.redhat.labs.insult.MetricsLauncher</vertx.launcher>
     </properties>
 
     <dependencies>
@@ -31,6 +32,10 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-hawkular-metrics</artifactId>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
