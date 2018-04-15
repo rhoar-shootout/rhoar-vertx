@@ -85,9 +85,9 @@
             <artifactId>spock-core</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency> <!-- enables mocking of classes (in addition to interfaces) -->
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency> <!-- enables mocking of classes without default constructor (together with CGLIB) -->
