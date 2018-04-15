@@ -16,6 +16,8 @@ public class MetricsLauncher extends Launcher {
     private static final Logger LOG = LoggerFactory.getLogger(MetricsLauncher.class);
     public static final String TOKEN_FILE_PATH = "/run/secrets/kubernetes.io/serviceaccount/token";
 
+
+
     @Override
     public void beforeStartingVertx(VertxOptions options) {
         File tokenFile = new File(TOKEN_FILE_PATH);

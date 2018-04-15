@@ -13,7 +13,6 @@
 
     <properties>
         <vertx.verticle>com.redhat.labs.insult.MainVerticle</vertx.verticle>
-        <vertx.launcher>com.redhat.labs.insult.MetricsLauncher</vertx.launcher>
     </properties>
 
     <dependencies>
@@ -115,7 +114,7 @@
                     <includeProjectDependencies>true</includeProjectDependencies>
                     <arguments>
                         <argument>run</argument>
-                        <argument>com.redhat.labs.insult.MainVerticle</argument>
+                        <argument>com.redhat.labs.insult.MetricsLauncher</argument>
                     </arguments>
                 </configuration>
             </plugin>
