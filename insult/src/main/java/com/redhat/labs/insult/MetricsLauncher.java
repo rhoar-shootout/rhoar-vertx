@@ -16,7 +16,19 @@ public class MetricsLauncher extends Launcher {
     private static final Logger LOG = LoggerFactory.getLogger(MetricsLauncher.class);
     public static final String TOKEN_FILE_PATH = "/run/secrets/kubernetes.io/serviceaccount/token";
 
+    public static void main(String[] args) {
+        new MetricsLauncher().dispatch(new String[]{"run", "com.redhat.labs.insult.MainVerticle"});
+    }
 
+    @Override
+    protected String getCommandFromManifest() {
+        return "run";
+    }
+
+    @Override
+    protected String getDefaultCommand() {
+        return "run";
+    }
 
     @Override
     public void beforeStartingVertx(VertxOptions options) {

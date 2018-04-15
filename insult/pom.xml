@@ -13,6 +13,7 @@
 
     <properties>
         <vertx.verticle>com.redhat.labs.insult.MainVerticle</vertx.verticle>
+        <vertx.launcher>com.redhat.labs.insult.MetricsLauncher</vertx.launcher>
     </properties>
 
     <dependencies>
