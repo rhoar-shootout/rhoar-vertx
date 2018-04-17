@@ -218,5 +218,24 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <workingDirectory>${project.basedir}</workingDirectory>
+                    <executable>mvn</executable>
+                    <arguments>
+                        <argument>-T</argument>
+                        <argument>4</argument>
+                        <argument>vertx:run</argument>
+                        <argument>-pl</argument>
+                        <argument>noun,adjective,insult,ui</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>
