@@ -10,7 +10,7 @@ import io.vertx.ext.sql.ResultSet
 import io.vertx.ext.sql.SQLConnection
 import spock.lang.Specification
 
-class AdjectiveServiceImplTest extends Specification {
+class AdjectiveServiceImplSpec extends Specification {
 
     public static final String DB_CONFIG_DATA = '''
                 {
