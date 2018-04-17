@@ -3,16 +3,18 @@
     <div class="row inline justify-center items-start">
       <div class="col-6" style="padding-right: 4px;">
         <q-input v-model="nameInput" type="text" placeholder="Target"></q-input>
-        <q-btn outline color="red" @click="getInsult">Insult {{target}}!</q-btn>
-        <q-btn outline color="green" @click="clearHistory">I Didn't Mean It!</q-btn>
+        <div class="side-by-side">
+          <q-btn color="red" @click="getInsult">Insult {{target}}!</q-btn>
+          <q-btn color="green" @click="clearHistory">I Didn't Mean It!</q-btn>
+        </div>
       </div>
       <div class="col-6" style="padding-left: 4px;">
         <textarea cols="60" rows="10" v-model="displayInsults"></textarea>
       </div>
     </div>
-    <div class="row">
+    <div class="row inline justify-center items-start">
       <div class="col-12">
-        <q-toggle left-label v-model="isReactiveEnabled" color="yellow" :label="connStatus"></q-toggle>
+        <q-toggle right-label v-model="isReactiveEnabled" color="yellow" :label="connStatus"></q-toggle>
       </div>
     </div>
   </div>
@@ -150,8 +152,16 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="stylus" scoped>
 .row
-  flex: auto
+  width: 100%
 .margined
   padding-left: 3px
   width: 120px
+.col-6
+  width: 50%
+  margin: auto
+.side-by-side
+  justify-content
+.col-12
+  width: 100%
+  margin: auto
 </style>
