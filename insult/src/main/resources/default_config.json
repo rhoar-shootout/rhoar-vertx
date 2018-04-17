@@ -15,7 +15,7 @@
   "breakers": {
     "maxFailures" : 5,
     "timeout" : 500,
-    "fallbackOnFailure" : false,
+    "fallbackOnFailure" : true,
     "resetTimeout" : 10000
   }
 }
