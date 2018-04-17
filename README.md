@@ -60,13 +60,17 @@ And the start-up flow for the Adjective and Noun services is diagrammed as well:
 * [VirtualBox](http://www.virtualbox.org) (On Windows/MacOS)
 
 ### Launching The Application In "Development" Mode
-> The Maven Vert.x Plugin allows you to run the application in a mode where any changes to the code
-> will cause a recompile and redeploy automatically. This allows you to do quick near-realtime 
-> development work
+The Maven Vert.x Plugin allows you to run the application in a mode where any changes to the code
+will cause a recompile and redeploy automatically. This allows you to do quick near-realtime 
+development work
 ```
 git clone https://github.com/rhoar-shootout/rhoar-vertx.git
-mvn -T 5 clean compile vertx:run
+cd rhoar-vertx
+mvn -T 4 compile vertx:run -pl noun,adjective,insult,ui
 ```
+> This will actually cause 4 instances of Maven to run in separate processes.
+> Each Maven process will monitor it's own sub-module for changes. When
+> changes are detected, the sub-module will rebuild and redeploy.
 
 ### Launching The Application Using MiniShift
 * On Linux
@@ -100,4 +104,4 @@ oc login <Your OpenShift Cluster Master>
 
 > You COULD potentially deploy the full CI/CD pipeline on MiniShift if you have 
 > a sufficiently powerful computer, but realize that this deployment usually
-> takes up enough resources for a server-grade system
+> takes up enough resources for a server-class system
