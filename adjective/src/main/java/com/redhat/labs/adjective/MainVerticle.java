@@ -47,10 +47,10 @@ public class MainVerticle extends AbstractVerticle {
     @Override
     public void start(io.vertx.core.Future<Void> startFuture) {
         this.initConfigRetriever()
-            .flatMap(c -> this.asyncLoadDbSchema(c))
-            .flatMap(v -> this.provisionRouter(v))
-            .flatMap(r -> this.createHttpServer(r))
-            .doOnError(t -> startFuture.fail(t))
+            .flatMap(this::asyncLoadDbSchema)
+            .flatMap(this::provisionRouter)
+            .flatMap(this::createHttpServer)
+            .doOnError(startFuture::fail)
             .subscribe(m -> startFuture.complete());
     }
 
@@ -174,6 +174,7 @@ public class MainVerticle extends AbstractVerticle {
             ctx.response()
                 .setStatusCode(status.code())
                 .setStatusMessage(status.reasonPhrase())
+                .putHeader("Content-Type", "application/json")
                 .end(res.result());
         } else {
             this.handleFailure(ctx);
