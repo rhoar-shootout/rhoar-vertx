@@ -38,7 +38,7 @@ public class MainVerticle extends AbstractVerticle {
 
     private static final Logger LOG = LoggerFactory.getLogger(MainVerticle.class);
 
-    private AdjectiveService service;
+    AdjectiveService service;
 
     /**
      * Initialize and start the {@link MainVerticle}
@@ -58,7 +58,7 @@ public class MainVerticle extends AbstractVerticle {
      * Initialize the {@link ConfigRetriever} and return a {@link Future}
      * @return A {@link Future} which resolves with the loaded configuration as a {@link JsonObject}
      */
-    private Maybe<JsonObject> initConfigRetriever() {
+    Maybe<JsonObject> initConfigRetriever() {
         ConfigStoreOptions defaultOpts = new ConfigStoreOptions()
                 .setType("file")
                 .setFormat("json")
@@ -87,7 +87,7 @@ public class MainVerticle extends AbstractVerticle {
      * @param config A {@link JsonObject} containing the configuration retrieved in the previous step.
      * @return A {@link Void} {@link Future} to be used to complete the next Async step
      */
-    private Maybe<Boolean> asyncLoadDbSchema(JsonObject config) {
+    Maybe<Boolean> asyncLoadDbSchema(JsonObject config) {
         vertx.getOrCreateContext().config().mergeIn(config);
         LOG.info(vertx.getOrCreateContext().config().encodePrettily());
         return vertx.rxExecuteBlocking(this::loadDbSchema).toMaybe();
@@ -97,7 +97,7 @@ public class MainVerticle extends AbstractVerticle {
      * Synchronous method to use Liquibase to load the database schema
      * @param f A {@link Future} to be completed when operation is done
      */
-    private void loadDbSchema(io.vertx.reactivex.core.Future<Boolean> f) {
+    void loadDbSchema(io.vertx.reactivex.core.Future<Boolean> f) {
         try {
             JsonObject dbCfg = vertx.getOrCreateContext().config().getJsonObject("db");
             Class.forName(dbCfg.getString("driver_class"));
@@ -112,8 +112,12 @@ public class MainVerticle extends AbstractVerticle {
                 f.complete(Boolean.TRUE);
             }
         } catch (Exception e) {
-            if (e.getCause()!=null && e.getCause().getLocalizedMessage().contains("already exists"))
-                f.complete(Boolean.TRUE);
+            if (e.getCause().getLocalizedMessage().contains("already exists"))
+                if (e.getCause() != null) {
+                    f.complete(Boolean.TRUE);
+                } else {
+                    f.fail(e);
+                }
             else {
                 f.fail(e);
             }
@@ -124,7 +128,7 @@ public class MainVerticle extends AbstractVerticle {
      * Begin the creation of the {@link OpenAPI3RouterFactory}
      * @return An {@link OpenAPI3RouterFactory} {@link Future} to be used to complete the next Async step
      */
-    private Maybe<OpenAPI3RouterFactory> provisionRouter(Boolean b) {
+    Maybe<OpenAPI3RouterFactory> provisionRouter(Boolean b) {
         service = new AdjectiveServiceImpl(vertx.getDelegate());
         new ServiceBinder(vertx.getDelegate()).setAddress("adjective.service").register(AdjectiveService.class, service);
         return OpenAPI3RouterFactory.rxCreate(vertx, "/adjective.yaml").toMaybe();
@@ -136,27 +140,38 @@ public class MainVerticle extends AbstractVerticle {
      * @param factory A {@link OpenAPI3RouterFactory} instance which is used to create a {@link Router}
      * @return The {@link HttpServer} instance created
      */
-    private Maybe<HttpServer> createHttpServer(OpenAPI3RouterFactory factory) {
+    Maybe<HttpServer> createHttpServer(OpenAPI3RouterFactory factory) {
         Router baseRouter = Router.router(vertx);
-        baseRouter.route().handler(ctx -> {
-            LOG.info(ctx.request().path());
-            ctx.next();
-        });
+        baseRouter.route().handler(this::logRequestPath);
+
         factory.addHandlerByOperationId("getAdjective", ctx -> service.get(res -> this.handleResult(ctx, OK, res)));
         factory.addHandlerByOperationId("addAdjective", this::handleAdjPost);
         factory.addHandlerByOperationId("health", ctx -> service.check(res -> this.handleResult(ctx, OK, res)));
-        JsonObject httpJsonCfg = vertx
-                .getOrCreateContext()
-                .config()
-                .getJsonObject("http");
+
+        JsonObject httpJsonCfg = vertx.getOrCreateContext().config().getJsonObject("http");
+
         baseRouter.mountSubRouter("/api/v1", factory.getRouter());
+
         HttpServerOptions httpConfig = new HttpServerOptions(httpJsonCfg);
         return vertx.createHttpServer(httpConfig)
                 .requestHandler(baseRouter::accept)
                 .rxListen().toMaybe();
     }
 
-    private void handleAdjPost(RoutingContext ctx) {
+    /**
+     * Log the request path given in the {@link RoutingContext}
+     * @param ctx The {@link RoutingContext} of a request
+     */
+    void logRequestPath(RoutingContext ctx) {
+        LOG.info(ctx.request().path());
+        ctx.next();
+    }
+
+    /**
+     * Extract POST parameters from the {@link RoutingContext} and make the call to the Service Proxy method
+     * @param ctx The {@link RoutingContext} of the request being handled
+     */
+    void handleAdjPost(RoutingContext ctx) {
         RequestParameters params = ctx.get("parsedParameters");
         RequestParameter bodyParam = params.body();
         JsonObject data = bodyParam.getJsonObject();
@@ -169,7 +184,7 @@ public class MainVerticle extends AbstractVerticle {
      * @param status The {@link HttpResponseStatus} to be used for the request's successful response
      * @param res The {@link JsonObject} which contains a response
      */
-    private void handleResult(RoutingContext ctx, HttpResponseStatus status, AsyncResult<String> res) {
+    void handleResult(RoutingContext ctx, HttpResponseStatus status, AsyncResult<String> res) {
         if (res.succeeded()) {
             ctx.response()
                 .setStatusCode(status.code())
@@ -181,7 +196,12 @@ public class MainVerticle extends AbstractVerticle {
         }
     }
 
-    private void handleFailure(RoutingContext ctx) {
+    /**
+     * If the result of the Service Proxy call was a failed future, then send the appropriate response to the HTTP
+     * client.
+     * @param ctx The {@link RoutingContext} of the request being handled
+     */
+    void handleFailure(RoutingContext ctx) {
         ctx.response()
             .setStatusCode(INTERNAL_SERVER_ERROR.code())
             .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
