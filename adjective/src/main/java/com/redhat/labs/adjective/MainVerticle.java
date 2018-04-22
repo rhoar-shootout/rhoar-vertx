@@ -46,7 +46,7 @@ public class MainVerticle extends AbstractVerticle {
      */
     @Override
     public void start(io.vertx.core.Future<Void> startFuture) {
-        this.initConfigRetriever()                      // Attempt to retrieve the configuration
+        this.initConfigRetriever()                      // Attempt to retrieve the application's configuration
             .flatMap(this::asyncLoadDbSchema)           // Use the config to load the DB schema
             .flatMap(this::provisionRouter)             // Provision the OpenAPI3RouterFactory
             .flatMap(this::createHttpServer)            // Mount the OpenAPI3Router and create the HTTP server
