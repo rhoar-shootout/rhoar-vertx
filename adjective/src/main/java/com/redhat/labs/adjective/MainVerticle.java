@@ -46,12 +46,12 @@ public class MainVerticle extends AbstractVerticle {
      */
     @Override
     public void start(io.vertx.core.Future<Void> startFuture) {
-        this.initConfigRetriever()
-            .flatMap(this::asyncLoadDbSchema)
-            .flatMap(this::provisionRouter)
-            .flatMap(this::createHttpServer)
-            .doOnError(startFuture::fail)
-            .subscribe(m -> startFuture.complete());
+        this.initConfigRetriever()                      // Attempt to retrieve the configuration
+            .flatMap(this::asyncLoadDbSchema)           // Use the config to load the DB schema
+            .flatMap(this::provisionRouter)             // Provision the OpenAPI3RouterFactory
+            .flatMap(this::createHttpServer)            // Mount the OpenAPI3Router and create the HTTP server
+            .doOnError(startFuture::fail)               // If ANY step fails, fail the Verticle deployment
+            .subscribe(m -> startFuture.complete());    // If ALL steps succeed, complete the Verticle deployment
     }
 
     /**
