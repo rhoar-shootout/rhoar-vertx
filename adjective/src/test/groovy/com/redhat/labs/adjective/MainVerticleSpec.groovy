@@ -1,7 +1,7 @@
 package com.redhat.labs.adjective
 
-import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClientOptions
+import io.vertx.reactivex.core.Vertx
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions
