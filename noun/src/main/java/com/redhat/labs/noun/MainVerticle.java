@@ -61,22 +61,22 @@ public class MainVerticle extends AbstractVerticle {
      */
     Maybe<JsonObject> initConfigRetriever() {
         ConfigStoreOptions defaultOpts = new ConfigStoreOptions()
-                .setType("file")
-                .setFormat("json")
-                .setConfig(new JsonObject().put("path", "noun_default_config.json"));
+            .setType("file")
+            .setFormat("json")
+            .setConfig(new JsonObject().put("path", "noun_default_config.json"));
 
         ConfigRetrieverOptions retrieverOptions = new ConfigRetrieverOptions()
-                                            .addStore(defaultOpts);
+            .addStore(defaultOpts);
 
         // Check to see if we are running on Kubernetes/OCP
         if (System.getenv().containsKey("KUBERNETES_NAMESPACE")) {
 
             ConfigStoreOptions confOpts = new ConfigStoreOptions()
-                    .setType("configmap")
-                    .setConfig(new JsonObject()
-                            .put("name", "noun-config")
-                            .put("optional", true)
-                    );
+                .setType("configmap")
+                .setConfig(new JsonObject()
+                    .put("name", "noun-config")
+                    .put("optional", true)
+                );
             retrieverOptions.addStore(confOpts);
         }
 
@@ -107,7 +107,7 @@ public class MainVerticle extends AbstractVerticle {
                     dbCfg.getString("user"),
                     dbCfg.getString("password"))) {
                 Database database = DatabaseFactory.getInstance()
-                        .findCorrectDatabaseImplementation(new JdbcConnection(conn));
+                    .findCorrectDatabaseImplementation(new JdbcConnection(conn));
                 Liquibase liquibase = new Liquibase("noun_schema.xml", new ClassLoaderResourceAccessor(), database);
                 liquibase.update(new Contexts(), new LabelExpression());
                 f.complete(Boolean.TRUE);
@@ -164,7 +164,7 @@ public class MainVerticle extends AbstractVerticle {
         RequestParameter bodyParam = params.body();
         JsonObject data = bodyParam.getJsonObject();
         service.save(data.getString("noun"),
-                res -> handleResult(ctx, CREATED, res)
+            res -> handleResult(ctx, CREATED, res)
         );
     }
 
@@ -186,10 +186,10 @@ public class MainVerticle extends AbstractVerticle {
     void handleResult(RoutingContext ctx, HttpResponseStatus status, AsyncResult<String> res) {
         if (res.succeeded()) {
             ctx.response()
-                    .setStatusCode(status.code())
-                    .setStatusMessage(status.reasonPhrase())
-                    .putHeader("Content-Type", "application/json")
-                    .end(res.result());
+                .setStatusCode(status.code())
+                .setStatusMessage(status.reasonPhrase())
+                .putHeader("Content-Type", "application/json")
+                .end(res.result());
         } else {
             this.handleFailure(ctx);
         }
@@ -202,8 +202,8 @@ public class MainVerticle extends AbstractVerticle {
      */
     void handleFailure(RoutingContext ctx) {
         ctx.response()
-                .setStatusCode(INTERNAL_SERVER_ERROR.code())
-                .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
-                .end();
+            .setStatusCode(INTERNAL_SERVER_ERROR.code())
+            .setStatusMessage(INTERNAL_SERVER_ERROR.reasonPhrase())
+            .end();
     }
 }

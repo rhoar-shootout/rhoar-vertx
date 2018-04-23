@@ -60,22 +60,22 @@ public class MainVerticle extends AbstractVerticle {
      */
     Maybe<JsonObject> initConfigRetriever() {
         ConfigStoreOptions defaultOpts = new ConfigStoreOptions()
-                .setType("file")
-                .setFormat("json")
-                .setConfig(new JsonObject().put("path", "adj_default_config.json"));
+            .setType("file")
+            .setFormat("json")
+            .setConfig(new JsonObject().put("path", "adj_default_config.json"));
 
         ConfigRetrieverOptions retrieverOptions = new ConfigRetrieverOptions()
-                                            .addStore(defaultOpts);
+            .addStore(defaultOpts);
 
         // Check to see if we are running on Kubernetes/OCP
         if (System.getenv().containsKey("KUBERNETES_NAMESPACE")) {
 
             ConfigStoreOptions confOpts = new ConfigStoreOptions()
-                    .setType("configmap")
-                    .setConfig(new JsonObject()
-                            .put("name", "adjective-config")
-                            .put("optional", true)
-                    );
+                .setType("configmap")
+                .setConfig(new JsonObject()
+                    .put("name", "adjective-config")
+                    .put("optional", true)
+                );
             retrieverOptions.addStore(confOpts);
         }
 
@@ -106,7 +106,7 @@ public class MainVerticle extends AbstractVerticle {
                     dbCfg.getString("user"),
                     dbCfg.getString("password"))) {
                 Database database = DatabaseFactory.getInstance()
-                        .findCorrectDatabaseImplementation(new JdbcConnection(conn));
+                    .findCorrectDatabaseImplementation(new JdbcConnection(conn));
                 Liquibase liquibase = new Liquibase("adjective_schema.xml", new ClassLoaderResourceAccessor(), database);
                 liquibase.update(new Contexts(), new LabelExpression());
                 f.complete(Boolean.TRUE);
@@ -154,8 +154,8 @@ public class MainVerticle extends AbstractVerticle {
 
         HttpServerOptions httpConfig = new HttpServerOptions(httpJsonCfg);
         return vertx.createHttpServer(httpConfig)
-                .requestHandler(baseRouter::accept)
-                .rxListen().toMaybe();
+            .requestHandler(baseRouter::accept)
+            .rxListen().toMaybe();
     }
 
     /**
