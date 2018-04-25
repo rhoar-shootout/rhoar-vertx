@@ -1,0 +1,4 @@
+*
+!target/*jar
+!default_config.json
+!Dockerfile
