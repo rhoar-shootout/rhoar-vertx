@@ -88,6 +88,7 @@ mvn compile package vertx:package fabric8:deploy
 
 * Using **docker-compose**
 ```
+mvn clean package install
 mvn clean package vertx:package -pl noun,adjective,insult,ui
 cd docker
 docker-compose up --build 

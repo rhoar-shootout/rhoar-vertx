@@ -1,3 +1,0 @@
-{
-  "settings.js": "var loc_proto = window.location.protocol;\nvar loc_host = window.location.hostname;\nwindow.base_url = loc_proto + \"//\" + loc_host + \":\" + 8081;"
-}

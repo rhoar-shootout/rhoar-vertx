@@ -68,7 +68,7 @@ public class MainVerticle extends AbstractVerticle {
         ConfigStoreOptions localConfig = new ConfigStoreOptions()
                 .setType("file")
                 .setFormat("json")
-                .setConfig(new JsonObject().put("path", "/opt/default_config.json"))
+                .setConfig(new JsonObject().put("path", "/opt/docker_config.json"))
                 .setOptional(true);
 
         ConfigRetrieverOptions retrieverOptions = new ConfigRetrieverOptions()
