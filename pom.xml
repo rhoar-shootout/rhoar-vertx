@@ -30,7 +30,9 @@
             <dependency>
                 <groupId>org.jgroups.kubernetes</groupId>
                 <artifactId>jgroups-kubernetes</artifactId>
-                <version>1.0.3.Final</version>
+                <version>${jgroups.kubernetes.version}</version>
+                <scope>compile</scope>
+                <optional>false</optional>
             </dependency>
             <dependency>
                 <groupId>org.liquibase</groupId>
