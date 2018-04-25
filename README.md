@@ -86,6 +86,13 @@ oc login -u developer -p developer https://
 mvn compile package vertx:package fabric8:deploy
 ```
 
+* Using **docker-compose**
+```
+mvn clean package vertx:package -pl noun,adjective,insult,ui
+cd docker
+docker-compose up --build 
+```
+
 ### Deploying And Managing On OpenShift
 The OpenShift deployment includes a complete CI/CD pipeline implementation using:
 * Jenkins
