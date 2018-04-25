@@ -15,6 +15,7 @@
 
     <properties>
         <vertx.verticle>com.redhat.labs.ui.MainVerticle</vertx.verticle>
+        <vertx.launcher>com.redhat.labs.rhoar.vertx.launcher.CustomLauncher</vertx.launcher>
         <sonar.exclusions>**/frontend/src/assets/js/**/*,**/frontend/config/**/*,**/frontend/build/**/*,**/frontend/node/**/*,**/node_modules/**/*,**/frontend/dist/**/*</sonar.exclusions>
         <sonar.language>js</sonar.language>
         <sonar.sources>src/main/frontend</sonar.sources>
@@ -36,6 +37,11 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-config-kubernetes-configmap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.labs</groupId>
+            <artifactId>clustered-launcher</artifactId>
+            <version>${version}</version>
         </dependency>
     </dependencies>
 

@@ -13,7 +13,7 @@
 
     <properties>
         <vertx.verticle>com.redhat.labs.insult.MainVerticle</vertx.verticle>
-        <vertx.launcher>com.redhat.labs.insult.MetricsLauncher</vertx.launcher>
+        <vertx.launcher>com.redhat.labs.rhoar.vertx.launcher.CustomLauncher</vertx.launcher>
     </properties>
 
     <dependencies>
@@ -35,6 +35,10 @@
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
+            <artifactId>vertx-infinispan</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
             <artifactId>vertx-rx-java2</artifactId>
         </dependency>
         <dependency>
@@ -48,6 +52,11 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-service-proxy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.labs</groupId>
+            <artifactId>clustered-launcher</artifactId>
+            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -115,12 +124,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>io.vertx.core.Launcher</mainClass>
+                    <mainClass>com.redhat.labs.rhoar.vertx.launcher.CustomLauncher</mainClass>
                     <includeProjectDependencies>true</includeProjectDependencies>
-                    <arguments>
-                        <argument>run</argument>
-                        <argument>com.redhat.labs.insult.MetricsLauncher</argument>
-                    </arguments>
                 </configuration>
             </plugin>
             <plugin>

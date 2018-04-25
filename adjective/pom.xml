@@ -15,6 +15,7 @@
 
     <properties>
         <vertx.verticle>com.redhat.labs.adjective.MainVerticle</vertx.verticle>
+        <vertx.launcher>com.redhat.labs.rhoar.vertx.launcher.CustomLauncher</vertx.launcher>
     </properties>
 
     <dependencies>
@@ -45,6 +46,11 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-service-proxy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.labs</groupId>
+            <artifactId>clustered-launcher</artifactId>
+            <version>${version}</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -122,12 +128,8 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <mainClass>com.redhat.labs.rhoar.vertx.launcher.CustomLauncher</mainClass>
                     <includeProjectDependencies>true</includeProjectDependencies>
-                    <mainClass>io.vertx.core.Launcher</mainClass>
-                    <arguments>
-                        <argument>run</argument>
-                        <argument>com.redhat.labs.adjective.MainVerticle</argument>
-                    </arguments>
                 </configuration>
             </plugin>
             <plugin>
