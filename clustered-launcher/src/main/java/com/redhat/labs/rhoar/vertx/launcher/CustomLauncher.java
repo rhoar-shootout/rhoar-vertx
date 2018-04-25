@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Optional;
 import java.util.jar.Attributes;
@@ -43,8 +44,9 @@ public class CustomLauncher extends Launcher {
                         .filter(k -> k.toString().startsWith("Main-Verticle"))
                         .map(k -> mainAttr.getValue((Attributes.Name)k))
                         .findFirst();
+                String[] updatedArgs = (String[])Arrays.asList("run", mainVerticle.get(), args).toArray();
                 if (mainVerticle.isPresent()) {
-                    new CustomLauncher().dispatch(new String[]{"run", mainVerticle.get()});
+                    new CustomLauncher().dispatch(updatedArgs);
                 } else {
                     LOG.fatal("Failed to load Main-Verticle value from META-INF/MANIFEST.MF A");
                 }

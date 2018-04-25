@@ -1,0 +1,19 @@
+version: '3'
+services:
+  adjective:
+    build: ../adjective
+    image: adjective
+  noun:
+    build: ../noun
+    image: noun
+  insult:
+    build: ../insult
+    image: insult
+    links:
+    - adjective
+    - noun
+  ui:
+    build: ../ui
+    image: ui
+    links:
+    - insult
