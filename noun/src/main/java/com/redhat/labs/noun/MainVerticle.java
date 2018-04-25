@@ -65,8 +65,15 @@ public class MainVerticle extends AbstractVerticle {
             .setFormat("json")
             .setConfig(new JsonObject().put("path", "noun_default_config.json"));
 
+        ConfigStoreOptions localConfig = new ConfigStoreOptions()
+                .setType("file")
+                .setFormat("json")
+                .setConfig(new JsonObject().put("path", "/opt/default_config.json"))
+                .setOptional(true);
+
         ConfigRetrieverOptions retrieverOptions = new ConfigRetrieverOptions()
-            .addStore(defaultOpts);
+                .addStore(defaultOpts)
+                .addStore(localConfig);
 
         // Check to see if we are running on Kubernetes/OCP
         if (System.getenv().containsKey("KUBERNETES_NAMESPACE")) {

@@ -6,7 +6,7 @@
     "driver_class": "org.h2.Driver"
   },
   "http": {
-    "port": 8083,
+    "port": 80,
     "host": "0.0.0.0"
   }
 }
