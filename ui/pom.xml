@@ -41,7 +41,7 @@
         <dependency>
             <groupId>com.redhat.labs</groupId>
             <artifactId>clustered-launcher</artifactId>
-            <version>${version}</version>
+            <version>${parent.version}</version>
         </dependency>
     </dependencies>
 
@@ -181,10 +181,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>io.fabric8</groupId>
-                <artifactId>vertx-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

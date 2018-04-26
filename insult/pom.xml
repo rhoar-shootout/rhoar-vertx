@@ -56,7 +56,7 @@
         <dependency>
             <groupId>com.redhat.labs</groupId>
             <artifactId>clustered-launcher</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -112,22 +112,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <mainClass>com.redhat.labs.rhoar.vertx.launcher.CustomLauncher</mainClass>
-                    <includeProjectDependencies>true</includeProjectDependencies>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>vertx-maven-plugin</artifactId>
@@ -251,33 +235,14 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>java</goal>
                         </goals>
-                        <configuration>
-                            <workingDirectory>${project.basedir}</workingDirectory>
-                            <executable>mvn</executable>
-                            <arguments>
-                                <argument>vertx:run</argument>
-                            </arguments>
-                            <async>true</async>
-                            <asyncDestroyOnShutdown>false</asyncDestroyOnShutdown>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>dev</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <workingDirectory>${project.basedir}</workingDirectory>
-                            <executable>mvn</executable>
-                            <arguments>
-                                <argument>package</argument>
-                                <argument>vertx:run</argument>
-                            </arguments>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <mainClass>com.redhat.labs.rhoar.vertx.launcher.CustomLauncher</mainClass>
+                    <includeProjectDependencies>true</includeProjectDependencies>
+                </configuration>
             </plugin>
         </plugins>
     </build>
