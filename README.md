@@ -72,18 +72,25 @@ mvn -T 4 compile vertx:run -pl noun,adjective,insult,ui
 > Each Maven process will monitor it's own sub-module for changes. When
 > changes are detected, the sub-module will rebuild and redeploy.
 
-### Launching The Application Using MiniShift
-* On Linux
+### Launching The Application Using In Containers
+* On Linux With MiniShift
 ```
-oc cluster up
+minishift start
 oc login -u developer -p developer https://localhost:8443/
-mvn compile package vertx:package fabric8:deploy
+mvn compile package fabric8:deploy
 ```
-* On MacOS/Windows
+
+* On MacOS/Windows With Minishift
 ```
 minishift start --vm-driver=virtualbox
 oc login -u developer -p developer https://
-mvn compile package vertx:package fabric8:deploy
+mvn compile package fabric8:deploy
+```
+
+* Using **docker-compose**
+```
+mvn clean package
+docker-compose up --build 
 ```
 
 ### Deploying And Managing On OpenShift

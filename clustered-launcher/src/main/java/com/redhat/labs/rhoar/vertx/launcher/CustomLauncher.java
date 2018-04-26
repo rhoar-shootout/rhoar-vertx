@@ -1,5 +1,8 @@
 package com.redhat.labs.rhoar.vertx.launcher;
 
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.vertx.core.Launcher;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.json.JsonObject;
@@ -8,14 +11,11 @@ import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.ext.cluster.infinispan.InfinispanClusterManager;
 import io.vertx.ext.hawkular.VertxHawkularOptions;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.Enumeration;
-import java.util.Optional;
-import java.util.jar.Attributes;
+import java.util.*;
 import java.util.jar.Manifest;
 
 /**
@@ -25,33 +25,38 @@ import java.util.jar.Manifest;
 public class CustomLauncher extends Launcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomLauncher.class);
-    public static final String TOKEN_FILE_PATH = "/run/secrets/kubernetes.io/serviceaccount/token";
+    private static final String TOKEN_FILE_PATH = "/run/secrets/kubernetes.io/serviceaccount/token";
 
     public static void main(String[] args) {
         System.setProperty("java.net.preferIPv4Stack", "true");
         System.setProperty("org.jboss.logging.provider", "slf4j");
         System.setProperty("jgroups.send_on_all_interfaces", "true");
         try {
-            Enumeration<URL> resources = CustomLauncher.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
-            while (resources.hasMoreElements()) {
-                Manifest manifest = new Manifest(resources.nextElement().openStream());
-                Attributes mainAttr = manifest.getMainAttributes();
-                mainAttr.keySet().forEach(key -> {
-                    LOG.warn(key + ": " + mainAttr.getValue((Attributes.Name) key));
-                });
-                Optional<String> mainVerticle = mainAttr.keySet().stream()
-                        .filter(k -> k.toString().startsWith("Main-Verticle"))
-                        .map(k -> mainAttr.getValue((Attributes.Name)k))
-                        .findFirst();
-                if (mainVerticle.isPresent()) {
-                    new CustomLauncher().dispatch(new String[]{"run", mainVerticle.get()});
-                } else {
-                    LOG.fatal("Failed to load Main-Verticle value from META-INF/MANIFEST.MF A");
-                }
-            }
+            List<URL> resources = Collections.list(CustomLauncher.class.getClassLoader().getResources("META-INF/MANIFEST.MF"));
+            Observable.fromIterable(resources)
+                    .flatMapMaybe(r -> Maybe.just(new Manifest(r.openStream())))
+                    .flatMapMaybe(maybe -> Maybe.just(maybe.getMainAttributes()))
+                    .flatMap(a -> Observable.fromIterable(a.entrySet()))
+                    .filter(e -> e.getKey().toString().startsWith("Main-Verticle"))
+                    .take(1)
+                    .map(e -> e.getValue().toString())
+                    .map(v -> Arrays.asList("run", v))
+                    .map(newArgs -> concatenateArguments(args, newArgs))
+                    .map(finalArgs -> finalArgs.toArray(new String[finalArgs.size()]))
+                    .doOnError(err -> LOG.fatal("Error while reading META-INF/MANIFEST.MF from classpath", err))
+                    .subscribe(a -> new CustomLauncher().dispatch(a));
         } catch (IOException ioe) {
-            LOG.fatal("Failed to load Main-Verticle value from META-INF/MANIFEST.MF B");
+            LOG.fatal("Failed to load Main-Verticle value from META-INF/MANIFEST.MF");
         }
+    }
+
+    private static List<String> concatenateArguments(String[] args, List<String> newArgs) {
+        List<String> fArgs = new ArrayList<>();
+        fArgs.addAll(newArgs);
+        if (args != null && args.length > 0) {
+            fArgs.addAll(Arrays.asList(args));
+        }
+        return fArgs;
     }
 
     @Override

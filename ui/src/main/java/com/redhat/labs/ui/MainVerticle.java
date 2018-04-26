@@ -34,7 +34,14 @@ public class MainVerticle extends AbstractVerticle {
      * @return A {@link Maybe} which may contain the configuration as a {@link JsonObject}
      */
     Maybe<JsonObject> getConfig() {
-        ConfigRetrieverOptions retrieverOptions = new ConfigRetrieverOptions();
+        ConfigStoreOptions localConfig = new ConfigStoreOptions()
+                .setType("file")
+                .setFormat("json")
+                .setConfig(new JsonObject().put("path", "/opt/docker_config.json"))
+                .setOptional(true);
+
+        ConfigRetrieverOptions retrieverOptions = new ConfigRetrieverOptions()
+                .addStore(localConfig);
         // Check to see if we are running on Kubernetes/OCP
         if (System.getenv().containsKey("KUBERNETES_NAMESPACE")) {
 
