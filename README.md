@@ -75,22 +75,20 @@ mvn -T 4 compile vertx:run -pl noun,adjective,insult,ui
 ### Launching The Application Using MiniShift
 * On Linux
 ```
-oc cluster up
+minishift start
 oc login -u developer -p developer https://localhost:8443/
-mvn compile package vertx:package fabric8:deploy
+mvn compile package fabric8:deploy
 ```
 * On MacOS/Windows
 ```
 minishift start --vm-driver=virtualbox
 oc login -u developer -p developer https://
-mvn compile package vertx:package fabric8:deploy
+mvn compile package fabric8:deploy
 ```
 
 * Using **docker-compose**
 ```
-mvn clean package install
-mvn clean package vertx:package -pl noun,adjective,insult,ui
-cd docker
+mvn clean package
 docker-compose up --build 
 ```
 
