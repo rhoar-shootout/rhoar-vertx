@@ -210,7 +210,7 @@
                 <version>3.5.33</version>
                 <executions>
                     <execution>
-                        <phase>deploy</phase>
+                        <phase>install</phase>
                         <goals>
                             <goal>resource</goal>
                             <goal>build</goal>
