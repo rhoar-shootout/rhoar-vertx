@@ -73,20 +73,11 @@ mvn -T 4 compile vertx:run -pl noun,adjective,insult,ui
 > changes are detected, the sub-module will rebuild and redeploy.
 
 ### Launching The Application Using In Containers
-* On Linux With MiniShift
-```
-minishift start
-oc login -u developer -p developer https://$(minishift ip):8443/
-mvn clean package
-mvn install -pl noun,adjective,insult,ui
-```
-
-* On MacOS/Windows With Minishift
+* On Linux(bash)/MacOS(bash)/Windows(PowerShell) With Minishift
 ```
 minishift start --vm-driver=virtualbox
-oc login -u developer -p developer https://
-mvn clean package
-mvn install -pl noun,adjective,insult,ui
+oc login -u developer -p developer https://$(minishift ip):8443/
+mvn clean package install
 ```
 
 * Using **docker-compose**
