@@ -147,6 +147,18 @@ objects:
             deploymentconfig: sonarqube
         spec:
           containers:
+            - name: oauth-proxy
+              image: openshift/oauth-proxy:v1.0.0
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 8080
+                name: public
+              args:
+              - --http-address=:8080
+              - --provider=openshift
+              - --openshift-service-account=default
+              - --upstream=http://localhost:9000
+              - --cookie-secret=SECRET
             - env:
                 - name: SONAR_PLUGIN_LIST
                   value: '${SONAR_PLUGIN_LIST}'
@@ -198,6 +210,14 @@ objects:
                   value: '${CA_CERT_URL}'
                 - name: EXTRA_JVM_ARGS
                   value: '${EXTRA_JVM_ARGS}'
+                - name: OAUTH_SSO_LOGIN_HEADER
+                  value: '${OAUTH_SSO_LOGIN_HEADER}'
+                - name: OAUTH_SSO_EMAIL_HEADER
+                  value: '${OAUTH_SSO_EMAIL_HEADER}'
+                - name: OAUTH_SSO_GROUPS_HEADER
+                  value: '${OAUTH_SSO_GROUPS_HEADER}'
+                - name: OAUTH_SSO_REFRESH_INTERVAL
+                  value: '${OAUTH_SSO_REFRESH_INTERVAL}'
               imagePullPolicy: Always
               livenessProbe:
                 failureThreshold: 3
@@ -232,6 +252,9 @@ objects:
             - name: sonarqube
               persistentVolumeClaim:
                 claimName: sonarqube
+            - name: proxy-tls
+              secret:
+                secretName: proxy-tls
       test: false
       triggers:
         - type: ConfigChange
@@ -377,3 +400,19 @@ parameters:
     displayName: Require Authentication
     name: FORCE_AUTHENTICATION
     value: 'true'
+  - description: Header into which we will inject the username from the auth proxy
+    displayName: Login Header
+    name: OAUTH_SSO_LOGIN_HEADER
+    value: 'X-Forwarded-User'
+  - description: Header into which we will inject the e-mail address from the auth proxy
+    displayName: E-Mail Header
+    name: OAUTH_SSO_EMAIL_HEADER
+    value: 'X-Forwarded-Email'
+  - description: Header into which we will inject the Groups from the auth proxy
+    displayName: Groups Header
+    name: OAUTH_SSO_GROUPS_HEADER
+    value: 'X-Forwarded-Groups'
+  - description: The refresh interval for users authenticated via the proxy
+    displayName: Auth Proxy Refresh Interval
+    name: OAUTH_SSO_REFRESH_INTERVAL
+    value: 5
