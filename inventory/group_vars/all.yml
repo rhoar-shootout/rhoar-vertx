@@ -95,6 +95,10 @@ openshift_cluster_content:
     template: "{{ inventory_dir }}/../openshift-templates/s2i-app-build/template-no-secrets.json"
     params: "{{ inventory_dir }}/../params/ui-app/build"
     namespace: rhoar-vertx-ci-cd
+  - name: clustered-launcher
+    template: "{{ inventory_dir }}/../openshift-templates/s2i-app-build/template-no-secrets.json"
+    params: "{{ inventory_dir }}/../params/clustered-launcher/build"
+    namespace: rhoar-vertx-ci-cd
 - object: dev-stage
   content:
   - name: apps-config
