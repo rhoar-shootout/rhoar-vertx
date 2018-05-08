@@ -2,7 +2,6 @@ apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
   name: sonarqube
-  namespace: rhoar-vertx-ci-cd
 objects:
   - apiVersion: v1
     kind: ImageStream
