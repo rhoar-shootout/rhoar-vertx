@@ -1,12 +1,8 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  creationTimestamp: '2018-05-07T14:57:56Z'
   name: sonarqube
-  namespace: myproject
-  resourceVersion: '3495'
-  selfLink: /apis/template.openshift.io/v1/namespaces/myproject/templates/sonarqube
-  uid: 06817ac5-5207-11e8-abc6-c85b76cd0ed1
+  namespace: rhoar-vertx-ci-cd
 objects:
   - apiVersion: v1
     kind: ImageStream
@@ -415,4 +411,4 @@ parameters:
   - description: The refresh interval for users authenticated via the proxy
     displayName: Auth Proxy Refresh Interval
     name: OAUTH_SSO_REFRESH_INTERVAL
-    value: 5
+    value: "5"
