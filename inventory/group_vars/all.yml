@@ -45,6 +45,12 @@ openshift_cluster_content:
     - zap-slave
 - object: ci-cd-deployments
   content:
+  - name: sonarqube
+    template: "{{ inventory_dir }}/../openshift-templates/sonarqube/template.yaml"
+    params: "{{ inventory_dir }}/../params/sonarqube/build-and-deploy"
+    namespace: rhoar-vertx-ci-cd
+    tags:
+    - sonar
   - name: maven-cache-volume
     template: "{{ inventory_dir }}/../openshift-templates/mvn-cache-pv/template.yaml"
     params: "{{ inventory_dir }}/../params/maven-cache-volume/deploy"
@@ -71,12 +77,6 @@ openshift_cluster_content:
     - nexus
     post_steps:
     - role: "rhoar-vertx/roles/configure-nexus"
-  - name: sonarqube
-    template: "{{ inventory_dir }}/../openshift-templates/sonarqube/template.yaml"
-    params: "{{ inventory_dir }}/../params/sonarqube/build-and-deploy"
-    namespace: rhoar-vertx-ci-cd
-    tags:
-    - sonar
 - object: app-builds
   content:
   - name: adjective-app-build
