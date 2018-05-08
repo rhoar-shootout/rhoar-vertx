@@ -50,7 +50,7 @@ objects:
       name: sonarqube
     spec:
       port:
-        targetPort: 8080-tcp
+        targetPort: 9000-tcp
       to:
         kind: Service
         name: sonarqube
@@ -70,10 +70,6 @@ objects:
           port: 9000
           protocol: TCP
           targetPort: 9000
-        - name: 8080-tcp
-          port: 8080
-          protocol: TCP
-          targetPort: 8080
       selector:
         app: sonarqube
         deploymentconfig: sonarqube
@@ -146,18 +142,6 @@ objects:
             deploymentconfig: sonarqube
         spec:
           containers:
-            - name: oauth-proxy
-              image: openshift/oauth-proxy:v1.0.0
-              imagePullPolicy: IfNotPresent
-              ports:
-              - containerPort: 8080
-                name: public
-              args:
-              - --http-address=:8080
-              - --provider=openshift
-              - --openshift-service-account=default
-              - --upstream=http://localhost:9000
-              - --cookie-secret=SECRET
             - env:
                 - name: SONAR_PLUGIN_LIST
                   value: '${SONAR_PLUGIN_LIST}'
@@ -251,9 +235,6 @@ objects:
             - name: sonarqube
               persistentVolumeClaim:
                 claimName: sonarqube
-            - name: proxy-tls
-              secret:
-                secretName: proxy-tls
       test: false
       triggers:
         - type: ConfigChange
